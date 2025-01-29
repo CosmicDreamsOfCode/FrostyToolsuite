@@ -79,7 +79,7 @@ namespace FrostySdk.Resources
         public uint RangeStart { get; set; }
         public uint RangeEnd { get; set; }
         public uint[] Unknown3 { get; } = new uint[4];
-        public byte swbfunk { get; set; };
+        public byte swbfunk { get; set; }
 
         public Guid ChunkId 
         {
