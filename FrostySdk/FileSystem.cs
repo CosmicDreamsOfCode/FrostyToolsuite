@@ -384,7 +384,7 @@ namespace FrostySdk
         {
             // Only if an install manifest exists
             DbObject installManifest = patchLayout.GetValue<DbObject>("installManifest");
-            if (installManifest != null)
+            if (installManifest != null && !ProfilesLibrary.IsLoaded(ProfileVersion.StarWarsBattlefront))
             {
                 foreach (DbObject installChunk in installManifest.GetValue<DbObject>("installChunks"))
                 {
