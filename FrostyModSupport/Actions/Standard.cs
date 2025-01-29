@@ -257,7 +257,7 @@ namespace Frosty.ModSupport
                             {
                                 // DAI stores only delta chunks in patch chunks bundles, so need to
                                 // read the base one
-                                if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
+                                if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefront)
                                 {
                                     if (isBase)
                                     {
@@ -1184,7 +1184,7 @@ namespace Frosty.ModSupport
                                 cancelToken.ThrowIfCancellationRequested();
 
                                 bool baseBundle = false;
-                                if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
+                                if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefront)
                                     baseBundle = !(bundle.GetValue<bool>("delta"));
 
                                 DbObject sbBundle = null;
@@ -1200,7 +1200,7 @@ namespace Frosty.ModSupport
                                     sbBundle.SetValue("alignMembers", false);
                                     sbBundle.SetValue("ridSupport", true);
                                     sbBundle.SetValue("storeCompressedSizes", false);
-                                    if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals)
+                                    if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals && ProfilesLibrary.DataVersion != (int)ProfileVersion.StarWarsBattlefront)
                                     {
                                         sbBundle.SetValue("chunkBundleSize", 0);
                                         sbBundle.SetValue("resBundleSize", 0);
@@ -1208,7 +1208,7 @@ namespace Frosty.ModSupport
                                         sbBundle.SetValue("dbxBundleSize", 0);
                                     }
                                     sbBundle.SetValue("totalSize", 0);
-                                    if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals)
+                                    if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals && ProfilesLibrary.DataVersion != (int)ProfileVersion.StarWarsBattlefront)
                                         sbBundle.SetValue("dbxTotalSize", 0);
                                 }
                                 else
@@ -1279,7 +1279,7 @@ namespace Frosty.ModSupport
                                             if (ebxEntry.IsInline)
                                                 ebx.SetValue("idata", parent.archiveData[ebxEntry.Sha1].Data);
 
-                                            if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
+                                            if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefront)
                                             {
                                                 ebx.SetValue("casPatchType", 1);
                                                 ebx.RemoveValue("baseSha1");
@@ -1350,7 +1350,7 @@ namespace Frosty.ModSupport
                                             if (resEntry.IsInline)
                                                 res.SetValue("idata", parent.archiveData[resEntry.Sha1].Data);
 
-                                            if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
+                                            if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefront)
                                             {
                                                 res.SetValue("casPatchType", 1);
                                                 res.RemoveValue("baseSha1");
@@ -1439,7 +1439,7 @@ namespace Frosty.ModSupport
                                                 }
                                                 else
                                                 {
-                                                    if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
+                                                    if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefront)
                                                     {
                                                         chunk.RemoveValue("rangeStart");
                                                         chunk.RemoveValue("rangeEnd");
@@ -1457,7 +1457,7 @@ namespace Frosty.ModSupport
                                                 else
                                                     chunk.RemoveValue("idata");
 
-                                                if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
+                                                if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefront)
                                                     chunk.SetValue("casPatchType", 1);
 
                                                 if (!casRefs.Contains(chunkEntry.Sha1))
@@ -1533,7 +1533,7 @@ namespace Frosty.ModSupport
                                             : chunk.GetValue<long>("size");
                                     }
 
-                                    if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals)
+                                    if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals && ProfilesLibrary.DataVersion != (int)ProfileVersion.StarWarsBattlefront)
                                     {
                                         sbBundle.SetValue("chunkBundleSize", chunkBundleSize);
                                         sbBundle.SetValue("resBundleSize", resBundleSize);
@@ -1542,7 +1542,7 @@ namespace Frosty.ModSupport
                                     }
 
                                     sbBundle.SetValue("totalSize", chunkBundleSize + resBundleSize + ebxBundleSize);
-                                    if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals)
+                                    if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals && ProfilesLibrary.DataVersion != (int)ProfileVersion.StarWarsBattlefront)
                                         sbBundle.SetValue("dbxTotalSize", (long)0);
                                 }
 
