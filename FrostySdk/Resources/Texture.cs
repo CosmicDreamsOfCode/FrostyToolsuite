@@ -155,7 +155,15 @@ namespace FrostySdk.Resources
             Width = reader.ReadUShort();
             Height = reader.ReadUShort();
             Depth = reader.ReadUShort();
-            sliceCount = reader.ReadUShort();
+            if (ProfilesLibrary.IsLoaded(ProfileVersion.StarWarsBattlefront))
+            {
+                sliceCount = reader.ReadByte();
+                reader.ReadByte();
+            }
+            else
+            {
+                sliceCount = reader.ReadUShort();
+            }
             if (ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
                 Flags = (TextureFlags)reader.ReadUShort();
             MipCount = reader.ReadByte();

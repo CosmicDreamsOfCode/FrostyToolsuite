@@ -1772,7 +1772,7 @@ namespace FrostySdk.Managers
                 toc = reader.ReadDbObject();
 
             if (isBase && !(ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesGardenWarfare2 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals ||
-                ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesGardenWarfare))
+                ProfilesLibrary.DataVersion == (int)ProfileVersion.PlantsVsZombiesGardenWarfare || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefront))
             {
                 // dont process base toc chunks unless the patch one only 
                 // stores the delta listing

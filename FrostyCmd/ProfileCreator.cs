@@ -249,12 +249,12 @@ namespace FrostyCmd
                 writer.WriteObfuscatedString("STAR WARS™ Battlefront™");
                 writer.Write((int)ProfileVersion.StarWarsBattlefront);
                 writer.WriteObfuscatedString("starwars");
-                writer.WriteObfuscatedString(typeof(NullDeobfuscator).Name);
-                writer.WriteObfuscatedString(AssetManager.GetLoaderName("StandardAssetLoader"));
-                writer.Write(CreateSources("Patch;false", "Update;true", "Data;false"));
+                writer.WriteObfuscatedString(typeof(DADeobfuscator).Name);
+                writer.WriteObfuscatedString(AssetManager.GetLoaderName("LegacyAssetLoader"));
+                writer.Write(CreateSources("Update\\Patch\\Patch;false", "Update;true", "Data;false"));
                 writer.WriteObfuscatedString("StarWarsSDK");
                 writer.Write(CreateBanner("SWBF"));
-                writer.WriteObfuscatedString("shaders/T_DefaultOrange_C");
+                writer.WriteObfuscatedString("shaders/T_DefaultWhite_C");
                 writer.WriteObfuscatedString("shaders/T_DefaultNormal_NS");
                 writer.WriteObfuscatedString("shaders/T_DefaultMask_MSW");
                 writer.WriteObfuscatedString("shaders/T_DefaultBlack_C");
@@ -262,7 +262,7 @@ namespace FrostyCmd
                 writer.Write(0); // ignored res types
 
                 // Flags (MustAddChunks, EbxVersion, RequiresKey)
-                ProfileFlags pf = new ProfileFlags(0, 2, 0);
+                ProfileFlags pf = new ProfileFlags(1, 2, 0);
                 pf.Write(writer);
 
                 blobs.Add(key, writer.ToByteArray());
