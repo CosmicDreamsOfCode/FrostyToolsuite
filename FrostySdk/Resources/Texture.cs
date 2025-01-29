@@ -2,6 +2,7 @@
 using FrostySdk.Managers;
 using System;
 using System.IO;
+using System.Reflection.Emit;
 
 namespace FrostySdk.Resources
 {
@@ -78,6 +79,7 @@ namespace FrostySdk.Resources
         public uint RangeStart { get; set; }
         public uint RangeEnd { get; set; }
         public uint[] Unknown3 { get; } = new uint[4];
+        public byte swbfunk { get; set; };
 
         public Guid ChunkId 
         {
@@ -158,7 +160,7 @@ namespace FrostySdk.Resources
             if (ProfilesLibrary.IsLoaded(ProfileVersion.StarWarsBattlefront))
             {
                 sliceCount = reader.ReadByte();
-                reader.ReadByte();
+                swbfunk = reader.ReadByte();
             }
             else
             {
@@ -228,6 +230,15 @@ namespace FrostySdk.Resources
                 writer.Write(Height);
                 writer.Write(Depth);
                 writer.Write(sliceCount);
+                if (ProfilesLibrary.IsLoaded(ProfileVersion.StarWarsBattlefront))
+                {
+                    writer.Write(sliceCount);
+                    writer.Write(swbfunk);
+                }
+                else
+                {
+                    writer.Write(sliceCount);
+                }
                 if (ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
                 {
                     writer.Write((ushort)Flags);

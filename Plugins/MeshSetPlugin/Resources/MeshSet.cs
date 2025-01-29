@@ -706,7 +706,7 @@ namespace MeshSetPlugin.Resources
 
             if (ProfilesLibrary.IsLoaded(ProfileVersion.MirrorsEdgeCatalyst, ProfileVersion.Battlefield1,
                             ProfileVersion.StarWarsBattlefrontII, ProfileVersion.Battlefield5,
-                            ProfileVersion.StarWarsSquadrons))
+                            ProfileVersion.StarWarsSquadrons, ProfileVersion.StarWarsBattlefront))
             {
                 writer.Write(m_offset2);
             }
@@ -716,7 +716,7 @@ namespace MeshSetPlugin.Resources
             writer.Write(m_materialId);
             if (!ProfilesLibrary.IsLoaded(ProfileVersion.DragonAgeInquisition, ProfileVersion.Battlefield4,
                     ProfileVersion.PlantsVsZombiesGardenWarfare, ProfileVersion.NeedForSpeedRivals,
-                    ProfileVersion.NeedForSpeedEdge))
+                    ProfileVersion.NeedForSpeedEdge, ProfileVersion.StarWarsBattlefront))
             {
                 writer.Write(m_lightMapUvMappingIndex);
             }
@@ -743,7 +743,7 @@ namespace MeshSetPlugin.Resources
             // MEC/BF1/SWBF2/BFV store boneCount as a ushort
             else if (ProfilesLibrary.IsLoaded(ProfileVersion.MirrorsEdgeCatalyst, ProfileVersion.Battlefield1,
                          ProfileVersion.StarWarsBattlefrontII, ProfileVersion.Battlefield5,
-                         ProfileVersion.StarWarsSquadrons))
+                         ProfileVersion.StarWarsSquadrons, ProfileVersion.StarWarsBattlefront))
             {
                 writer.Write((ushort)0x00); // padding
 
