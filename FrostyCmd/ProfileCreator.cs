@@ -249,9 +249,9 @@ namespace FrostyCmd
                 writer.WriteObfuscatedString("STAR WARS™ Battlefront™");
                 writer.Write((int)ProfileVersion.StarWarsBattlefront);
                 writer.WriteObfuscatedString("starwars");
-                writer.WriteObfuscatedString(typeof(NullDeobfuscator).Name);
+                writer.WriteObfuscatedString(typeof(DADeobfuscator).Name);
                 writer.WriteObfuscatedString(AssetManager.GetLoaderName("LegacyAssetLoader"));
-                writer.Write(CreateSources("Update\\Patch\\Patch;false", "Update;true", "Data;false"));
+                writer.Write(CreateSources("Update\\Patch\\Data;false", "Update;true", "Data;false"));
                 writer.WriteObfuscatedString("StarWarsSDK");
                 writer.Write(CreateBanner("SWBF"));
                 writer.WriteObfuscatedString("shaders/T_DefaultWhite_C");
