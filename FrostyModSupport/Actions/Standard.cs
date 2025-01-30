@@ -257,7 +257,7 @@ namespace Frosty.ModSupport
                             {
                                 // DAI stores only delta chunks in patch chunks bundles, so need to
                                 // read the base one
-                                if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefront)
+                                if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
                                 {
                                     if (isBase)
                                     {
@@ -1184,7 +1184,7 @@ namespace Frosty.ModSupport
                                 cancelToken.ThrowIfCancellationRequested();
 
                                 bool baseBundle = false;
-                                if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsBattlefront)
+                                if (ProfilesLibrary.DataVersion == (int)ProfileVersion.DragonAgeInquisition || ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield4 || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeed || ProfilesLibrary.DataVersion == (int)ProfileVersion.NeedForSpeedRivals)
                                     baseBundle = !(bundle.GetValue<bool>("delta"));
 
                                 DbObject sbBundle = null;

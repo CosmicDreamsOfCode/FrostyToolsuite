@@ -1693,7 +1693,10 @@ namespace Frosty.ModSupport
                             if (entry.GetValue<string>("name").Equals(sbName, StringComparison.OrdinalIgnoreCase))
                             {
                                 entry.RemoveValue("same");
-                                entry.SetValue("delta", true);
+                                if (!ProfilesLibrary.IsLoaded(ProfileVersion.StarWarsBattlefront))
+                                {
+                                    entry.SetValue("delta", true);
+                                }
                             }
                         }
                     }
@@ -2092,7 +2095,7 @@ namespace Frosty.ModSupport
                     if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals && ProfilesLibrary.DataVersion != (int)ProfileVersion.StarWarsBattlefront)
                         writer.Write(header);
                     writer.WriteFixedSizedString("NyanNyanNyanNyan", 16);
-                    if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals && ProfilesLibrary.DataVersion != (int)ProfileVersion.StarWarsBattlefront)
+                    if (ProfilesLibrary.DataVersion != (int)ProfileVersion.DragonAgeInquisition && ProfilesLibrary.DataVersion != (int)ProfileVersion.Battlefield4 && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeed && ProfilesLibrary.DataVersion != (int)ProfileVersion.NeedForSpeedRivals)
                     {
                         writer.Write(numEntries);
                         writer.Write(numPatchEntries);
