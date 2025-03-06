@@ -42,7 +42,7 @@ namespace FrostyEditor
         public App()
         {
             Assembly entryAssembly = Assembly.GetEntryAssembly();
-            Version = entryAssembly.GetName().Version.ToString();
+            Version = entryAssembly.GetName().Version.ToString() + " Extended";
 
             Environment.CurrentDirectory = AppDomain.CurrentDomain.BaseDirectory;
 
