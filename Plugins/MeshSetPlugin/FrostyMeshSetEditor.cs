@@ -1314,6 +1314,31 @@ namespace MeshSetPlugin
                                     int x = reader.ReadInt();
                                     layerElemVertexColor[colorMapping[elem.Usage]].DirectArray.Add(x / 255.0f, 0, 0, 0);
                                 }
+
+                                // SubMaterialIndex
+                                // if no shader specified in ebx its used as color
+                                // else its used as an index for the material
+                                else if (elem.Format == VertexElementFormat.UByte4)
+                                {
+                                    if (!colorMapping.ContainsKey(elem.Usage))
+                                    {
+                                        layerElemVertexColor[colorChannelIndex] = new FbxLayerElementVertexColor(fmesh, channelName)
+                                        {
+                                            MappingMode = EMappingMode.eByControlPoint,
+                                            ReferenceMode = EReferenceMode.eDirect
+                                        };
+
+                                        colorMapping.Add(elem.Usage, colorChannelIndex);
+                                        colorChannelIndex++;
+                                    }
+
+                                    byte r = reader.ReadByte();
+                                    byte g = reader.ReadByte();
+                                    byte b = reader.ReadByte();
+                                    byte a = reader.ReadByte();
+
+                                    layerElemVertexColor[colorMapping[elem.Usage]].DirectArray.Add(r / 255.0f, g / 255.0f, b / 255.0f, a / 255.0f);
+                                }
                                 else
                                     reader.Position += elem.Size;
                             }
@@ -1521,8 +1546,8 @@ namespace MeshSetPlugin
     #region -- Importer Exceptions --
     public class FBXImportInvalidLodCountException : Exception
     {
-        public FBXImportInvalidLodCountException()
-            : base("There was a mismatch in the amount of LODs defined in the imported file and existing mesh")
+        public FBXImportInvalidLodCountException(int foundCount, int expectedCount)
+            : base(string.Format("There was a mismatch in the amount of LODs defined in the imported file and existing mesh. Found {0}, Expected {1}", foundCount, expectedCount))
         {
         }
     }
@@ -1565,6 +1590,13 @@ namespace MeshSetPlugin
     {
         public FBXImportNoMeshesFoundException(int lodLevel)
             : base(string.Format("Import file must contain at least one mesh at lod level " + lodLevel))
+        {
+        }
+    }
+    public class FBXImportMissingWeightException : Exception
+    {
+        public FBXImportMissingWeightException()
+            : base("Encountered face without any bone assigned. Make sure your model is fully skinned")
         {
         }
     }
@@ -1668,7 +1700,7 @@ namespace MeshSetPlugin
                 }
 
                 if (lodCount < meshSet.Lods.Count)
-                    throw new FBXImportInvalidLodCountException();
+                    throw new FBXImportInvalidLodCountException(lodCount, meshSet.Lods.Count);
 
                 meshSet.ClearPartData();
                 List<BoundingBox> partBbox = new List<BoundingBox>();
@@ -2511,6 +2543,9 @@ namespace MeshSetPlugin
                                 localBoneWeights.RemoveRange(totalBoneInfluences, localBoneWeights.Count - totalBoneInfluences);
                             }
 
+                            if (localBoneIndices.Count == 0)
+                                throw new FBXImportMissingWeightException();
+
                             int totalWeight = 0;
                             for (int k = 0; k < localBoneWeights.Count; k++)
                                 totalWeight += localBoneWeights[k];
@@ -2685,6 +2720,24 @@ namespace MeshSetPlugin
 
                                             layerColor.DirectArray.GetAt(actualIndex, out ColorBGRA color);
                                             vertex.SetValue("Delta", (int)color.R);
+                                        }
+                                    }
+                                    break;
+
+                                case VertexElementUsage.SubMaterialIndex:
+                                    {
+                                        FbxLayerElementVertexColor layerColor = fmesh.GetElementVertexColor("SubMaterialIndex");
+                                        if (layerColor != null)
+                                        {
+                                            int mappingIndex = (layerColor.MappingMode == EMappingMode.eByControlPoint) ? vertexIndex : (i * 3) + j;
+                                            int actualIndex = mappingIndex;
+                                            if (layerColor.ReferenceMode != EReferenceMode.eDirect)
+                                            {
+                                                layerColor.IndexArray.GetAt(mappingIndex, out actualIndex);
+                                            }
+
+                                            layerColor.DirectArray.GetAt(actualIndex, out ColorBGRA color);
+                                            vertex.SetValue("SubMaterialIndex", color);
                                         }
                                     }
                                     break;
@@ -3129,6 +3182,23 @@ namespace MeshSetPlugin
                                                 {
                                                     int x = vertex.GetValue<int>("RegionIds");
                                                     chunkWriter.Write(x);
+                                                }
+                                                else
+                                                {
+                                                    chunkWriter.Write(0);
+                                                }
+                                            }
+                                            break;
+
+                                        case VertexElementUsage.SubMaterialIndex:
+                                            {
+                                                if (vertex.HasValue("SubMaterialIndex"))
+                                                {
+                                                    ColorBGRA subMaterialIndex = vertex.GetValue<ColorBGRA>("SubMaterialIndex");
+                                                    chunkWriter.Write(subMaterialIndex.R);
+                                                    chunkWriter.Write(subMaterialIndex.G);
+                                                    chunkWriter.Write(subMaterialIndex.B);
+                                                    chunkWriter.Write(subMaterialIndex.A);
                                                 }
                                                 else
                                                 {
@@ -4502,8 +4572,8 @@ namespace MeshSetPlugin
                         try
                         {
                             // import
-                            FBXImporter importer = new FBXImporter(logger);
-                            importer.ImportFBX(ofd.FileName, meshSet, localAsset, localEntry, settings);
+                        FBXImporter importer = new FBXImporter(logger);
+                        importer.ImportFBX(ofd.FileName, meshSet, localAsset, localEntry, settings);
                         }
                         catch (Exception exp)
                         {
