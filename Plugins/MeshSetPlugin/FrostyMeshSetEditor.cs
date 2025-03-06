@@ -1595,8 +1595,8 @@ namespace MeshSetPlugin
     }
     public class FBXImportMissingWeightException : Exception
     {
-        public FBXImportMissingWeightException()
-            : base("Encountered face without any bone assigned. Make sure your model is fully skinned")
+        public FBXImportMissingWeightException(string sectionName)
+            : base(string.Format("Encountered face on imported object {0} without any bone assigned. Make sure your model is fully skinned", sectionName))
         {
         }
     }
@@ -2544,7 +2544,7 @@ namespace MeshSetPlugin
                             }
 
                             if (localBoneIndices.Count == 0)
-                                throw new FBXImportMissingWeightException();
+                                throw new FBXImportMissingWeightException(sectionNode.Name);
 
                             int totalWeight = 0;
                             for (int k = 0; k < localBoneWeights.Count; k++)
