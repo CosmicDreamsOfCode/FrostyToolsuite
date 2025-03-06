@@ -891,7 +891,7 @@ namespace Frosty.Core.Viewport
                         }
                     }
 
-                    if (!paramName.Contains("/") && ((paramName.StartsWith("C") || paramName.StartsWith("_C") || paramName.StartsWith("Base") || paramName.Contains("_CS") || paramName.Contains("_Base") || paramName.Contains("CS"))))
+                    if (!paramName.Contains("/") && !paramName.Contains("CamoTexture") && ((paramName.StartsWith("C") || paramName.StartsWith("_C") || paramName.StartsWith("Base") || paramName.Contains("_CS") || paramName.Contains("_Base") || paramName.Contains("CS"))))
                     {
                         if (DiffuseTexture == null)
                         {
@@ -938,19 +938,19 @@ namespace Frosty.Core.Viewport
                         }
                         NormTexture = state.TextureLibrary.LoadTextureAsset(value.External.FileGuid);
                     }
-                    else if ((paramName.Equals("AOSlice")))
+                    else if ((paramName.Contains("AOSlice")))
                     {
                         MaskTexture = state.TextureLibrary.LoadTextureAsset(value.External.FileGuid);
                         CustomParam2 = 1;
                     }
-                    else if (paramName.Equals("Markings_Texture") || paramName.Equals("Markings_Texture2") || paramName.Equals("Markings_CamoTexture"))
+                    else if (paramName.Contains("Markings_") || paramName.Contains("CamoTexture"))
                     {
                         ShaderResourceView srv = state.TextureLibrary.LoadTextureAsset(value.External.FileGuid);
-                        if (paramName.Equals("Markings_Texture")) { AdditionalTextures[0] = srv; TintColorA.X = 1.0f; }
-                        else if (paramName.Equals("Markings_Texture2")) { AdditionalTextures[1] = srv; TintColorA.Y = 1.0f; }
-                        else { AdditionalTextures[2] = srv; }
+                        if (paramName.Equals("Markings_Texture") || paramName.Equals("Markings_Tex1")) { AdditionalTextures[0] = srv; TintColorA.X = 1.0f; }
+                        else if (paramName.Equals("Markings_Texture2") || paramName.Equals("Markings_Tex2")) { AdditionalTextures[1] = srv; TintColorA.Y = 1.0f; }
+                        else { AdditionalTextures[2] = srv;}
                     }
-                    else if (paramName.Equals("NormalDetailTextureArray"))
+                    else if (paramName.Contains("DetailTextureArray"))
                     {
                         AdditionalTextures[3] = state.TextureLibrary.LoadTextureAsset(value.External.FileGuid);
                     }
