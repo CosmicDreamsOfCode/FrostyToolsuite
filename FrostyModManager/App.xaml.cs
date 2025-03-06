@@ -48,7 +48,7 @@ namespace FrostyModManager
         public App()
         {
             Assembly entryAssembly = Assembly.GetEntryAssembly();
-            Version = entryAssembly.GetName().Version.ToString() + " Extended";
+            Version = entryAssembly.GetName().Version.ToString() + " Continued";
 
             Logger = new FrostyLogger();
             Logger.Log("Frosty Mod Manager v{0}", Version);
