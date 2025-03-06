@@ -1547,7 +1547,7 @@ namespace MeshSetPlugin
     public class FBXImportInvalidLodCountException : Exception
     {
         public FBXImportInvalidLodCountException(int foundCount, int expectedCount)
-            : base(string.Format("There was a mismatch in the amount of LODs defined in the imported file and existing mesh. Found {0}, Expected {1}", foundCount, expectedCount))
+            : base(string.Format("There was a mismatch in the amount of LODs defined in the imported file and existing mesh. Found {0}, Expected {1}. Make sure you follow the format of [section]:lod[index]", foundCount, expectedCount))
         {
         }
     }
