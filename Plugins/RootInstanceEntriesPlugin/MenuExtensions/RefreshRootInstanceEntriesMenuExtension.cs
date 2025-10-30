@@ -10,9 +10,9 @@ namespace RootInstanceEntiresPlugin.MenuExtensions
         internal static ImageSource imageSource = new ImageSourceConverter().ConvertFromString("pack://application:,,,/RefreshMeshVariationsPlugin;component/Images/Refresh.png") as ImageSource;
 
         public override string TopLevelMenuName => "Tools";
-        public override string SubLevelMenuName => null;
+        public override string SubLevelMenuName => "Root Instance Cache";
 
-        public override string MenuItemName => "Refresh Root Instance Ebx Entries";
+        public override string MenuItemName => "Refresh";
         public override ImageSource Icon => imageSource;
 
         public override RelayCommand MenuItemClicked => new RelayCommand((o) =>
