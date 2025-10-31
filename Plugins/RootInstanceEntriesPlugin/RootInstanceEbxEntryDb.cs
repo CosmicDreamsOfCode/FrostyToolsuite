@@ -37,8 +37,10 @@ namespace RootInstanceEntiresPlugin
                     task.Update(progress: progress);
 
                     EbxAsset asset = App.AssetManager.GetEbx(entry);
-                    ebxRootInstanceGuidList.Add(asset.RootInstanceGuid, entry.Guid);
-
+                    if (!ebxRootInstanceGuidList.ContainsKey(asset.RootInstanceGuid))
+                    {
+                        ebxRootInstanceGuidList.Add(asset.RootInstanceGuid, entry.Guid);
+                    }
                     index++;
                 }
 
