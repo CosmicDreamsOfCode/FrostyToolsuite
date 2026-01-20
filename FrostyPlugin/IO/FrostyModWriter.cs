@@ -89,7 +89,7 @@ namespace Frosty.Core.IO
 
             public BundleResource(BundleEntry entry, Manifest manifest)
             {
-                name = entry.Name.ToLower();
+                name = entry.Name;
                 superBundleName = Fnv1a.HashString(App.AssetManager.GetSuperBundle(entry.SuperBundleId).Name.ToLower());
             }
 
@@ -110,7 +110,7 @@ namespace Frosty.Core.IO
                 CompressionType compressType = (ProfilesLibrary.DataVersion == (int)ProfileVersion.Fifa18) ? CompressionType.ZStd : CompressionType.Default;
                 byte[] data = null;
 
-                name = entry.Name.ToLower();
+                name = entry.Name;
                 if (entry.HasModifiedData)
                 {
                     userData = entry.ModifiedEntry.UserData;
@@ -139,7 +139,7 @@ namespace Frosty.Core.IO
             public ResResource(ResAssetEntry entry, Manifest manifest)
                 : base(entry)
             {
-                name = entry.Name.ToLower();
+                name = entry.Name;
                 if (entry.HasModifiedData)
                 {
                     sha1 = entry.ModifiedEntry.Sha1;
