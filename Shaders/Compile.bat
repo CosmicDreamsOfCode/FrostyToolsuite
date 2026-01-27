@@ -1,3 +1,5 @@
+md Bin
+
 fxc TextureEditor.hlsl /Tvs_5_0 /EVS_Main /Fo.\Bin\Texture.vso
 fxc TextureEditor.hlsl /Tps_5_0 /EPS_Main /Fo.\Bin\Texture.pso
 fxc SoundWaveEditor.hlsl /Tvs_5_0 /EVS_Main /Fo.\Bin\SoundWave.vso
@@ -60,6 +62,7 @@ fxc IBL.hlsl /Tps_5_0 /EPS_SpecularLD /Fo.\Bin\IBL_IntegrateSpecularLD.pso
 fxc IBL.hlsl /Tps_5_0 /EPS_IBL /Fo.\Bin\IBL_Main.pso
 
 fxc MeshFallback.hlsl /Tvs_5_0 /EVS_MeshFallback /DPROFILE_20171117=1 /DOPTIMIZE=1 /Fo.\Bin\20171117.vso
+fxc MeshFallback.hlsl /Tvs_5_0 /EVS_MeshFallback /DPROFILE_20201001=1 /DOPTIMIZE=1 /Fo.\Bin\20201001.vso
 fxc MeshFallback.hlsl /Tvs_5_0 /EVS_MeshFallback /DPROFILE_20170321=1 /DOPTIMIZE=1 /Fo.\Bin\20170321.vso
 fxc MeshFallback.hlsl /Tvs_5_0 /EVS_MeshFallback /DPROFILE_20160607=1 /DOPTIMIZE=1 /Fo.\Bin\20160607.vso
 fxc MeshFallback.hlsl /Tvs_5_0 /EVS_MeshFallback /DPROFILE_20151117=1 /DOPTIMIZE=1 /Fo.\Bin\20151117.vso
@@ -84,6 +87,7 @@ fxc MeshFallback.hlsl /Tvs_5_0 /EVS_MeshFallback /DPROFILE_20190729=1 /Fo.\Bin\2
 fxc MeshFallback.hlsl /Tvs_5_0 /EVS_MeshFallback /DPROFILE_20191101=1 /Fo.\Bin\20191101.vso
 
 fxc MeshFallback.hlsl /Tps_5_0 /EPS_MeshFallback /DPROFILE_20171117=1 /Fo.\Bin\20171117.pso
+fxc MeshFallback.hlsl /Tps_5_0 /EPS_MeshFallback /DPROFILE_20201001=1 /Fo.\Bin\20201001.pso
 fxc MeshFallback.hlsl /Tps_5_0 /EPS_MeshFallback /DPROFILE_20170321=1 /Fo.\Bin\20170321.pso
 fxc MeshFallback.hlsl /Tps_5_0 /EPS_MeshFallback /DPROFILE_20160607=1 /Fo.\Bin\20160607.pso
 fxc MeshFallback.hlsl /Tps_5_0 /EPS_MeshFallback /DPROFILE_20151117=1 /Fo.\Bin\20151117.pso
@@ -112,5 +116,4 @@ fxc UnpackNormals.hlsl /Tcs_5_0 /ECS_UnpackAxisAngle /Fo.\Bin\UnpackAxisAngle.vs
 fxc UnpackNormals.hlsl /Tcs_5_0 /ECS_UnpackQuaternion /Fo.\Bin\UnpackQuaternion.vso
 
 cd ..\FrostyEditor\bin\Developer\Debug
-FrostyCmd.exe "D:\OriginLibrary\originapps\Mass Effect Andromeda\MassEffectAndromeda.exe" shader
-copy ..\..\..\Shaders.bin .\Shaders.bin
+FrostyCmd.exe s

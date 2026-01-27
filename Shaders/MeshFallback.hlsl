@@ -423,7 +423,7 @@ cbuffer MaterialConstants : register(b2)
 #if PROFILE_20161021 == 1
 	float3 Padding;
 #endif
-#if PROFILE_20171117 == 1
+#if PROFILE_20171117 == 1 || PROFILE_20201001 == 1
 	float MetallicChannel; // 0 = None, 1 = Norm.b, 2 = Norm.a
 	float AOChannel; // 0 = None, 1 = AOSlice.r, 2 = Norm.b, 3 = Norm.a
 	float MultiUV;
@@ -473,7 +473,7 @@ cbuffer MaterialConstants : register(b2)
 	float4 TintColorB;
 	float4 TintColorC;
 	float4 TintColorD;
-#if PROFILE_20171117
+#if PROFILE_20171117 || PROFILE_20201001
 	float4 Detail_Tiling;
 	float4 NormalDetail_Intensity;
 	float4 SmoothnessDetail_Intensity;
@@ -521,7 +521,7 @@ Texture2D<float4> texture_SpecMask : register(t4);
 Texture2D<float4> texture_Normal : register(t2);
 #endif
 
-#if PROFILE_20171117==1
+#if PROFILE_20171117==1 || PROFILE_20201001==1
 Texture2D<float4> texture_Normal : register(t2);
 Texture2D<float4> texture_AOSlice : register(t3);
 // t4 is not used
@@ -826,7 +826,7 @@ PS_OUT PS_MeshFallback(PS_IN In)
 #endif
 
 // SWBF2 
-#if PROFILE_20171117==1
+#if PROFILE_20171117==1 || PROFILE_20201001==1
 	float MarkingsChannel = TintColorA.w;
 	float MarkingsUse2Masks = TintColorB.w;
 	float MarkingsCamoScaling = TintColorC.w;
