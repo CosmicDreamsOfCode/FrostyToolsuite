@@ -841,14 +841,15 @@ PS_OUT PS_MeshFallback(PS_IN In)
 	float Metallic = (MetallicChannel > 0.5f) ? Norm.b : 0.0f;
 	float MaterialAO = (AOChannel > 0.5f) ? AOSlice.r : 1.0f;
 	
-	uint sliceIndex = (uint)(clamp(AOSlice.g, 0, 0.999f) * 3);
+	uint sliceIndex = (uint)AOSlice.g * 2.5;
+	float sliceIndexFloat = (AOChannel > 1.5f) ? Norm.a : AOSlice.g;
 		
 	Metallic = (MetallicChannel > 1.5f) ? Norm.a : Metallic;
 	MaterialAO = (AOChannel > 1.5f) ? Norm.b : MaterialAO;
 	MaterialAO = (AOChannel > 2.5f) ? Norm.a : MaterialAO;
 	MaterialAO = (SmoothnessChannel.y > 0.5f) ? RSSSAO.b : MaterialAO;
 	
-	sliceIndex = (AOChannel > 1.5f) ? (uint)(clamp(Norm.a, 0, 0.999f) * 3) : sliceIndex;
+	sliceIndex = (AOChannel > 1.5f) ? (uint)Norm.a * 2.5 : sliceIndex;
 	float4 DetailNS = texture_NormalDetailTextureArray.Sample(sampler1_s, float3(In.TexCoord0 * Detail_Tiling[sliceIndex], sliceIndex));
 	
 	if (MultiUV > 0.5f)
@@ -906,8 +907,17 @@ PS_OUT PS_MeshFallback(PS_IN In)
 	
 	if ((Detail_Tiling[0] + Detail_Tiling[1] + Detail_Tiling[2]) > 0)
 	{
-		Norm.xyz += (DeriveNormalZ(DetailNS.xy * 2 - 1) * NormalDetail_Intensity[sliceIndex]) * (1-Metallic);
-		Smoothness += (DetailNS.z * SmoothnessDetail_Intensity[sliceIndex]) * (1-Metallic);
+	    float3 sliceMasks;
+		sliceMasks.x = sliceIndexFloat < 0.3f;
+		sliceMasks.y = (sliceIndexFloat < 0.6f) - sliceMasks.x;
+		sliceMasks.z = sliceIndexFloat > 0.8f;
+	
+		float sliceMaskNrm = dot(sliceMasks, NormalDetail_Intensity.xyz) * 0.5;
+		float sliceMaskSmooth = dot(sliceMasks, SmoothnessDetail_Intensity.xyz);
+	
+		float3 detailNrm = DeriveNormalZ(DetailNS.xy * 2 - 1);
+	    Norm.xyz = detailNrm * sliceMaskNrm + Norm.xyz;
+		Smoothness = lerp(Smoothness, dot(Smoothness.xx, DetailNS.zz), sliceMaskSmooth);
 	}
 	
 	Norm.xyz = CalcWorldSpaceNormals(normalize(Norm.xyz), In.Tangent, In.Bitangent, In.Normal);
