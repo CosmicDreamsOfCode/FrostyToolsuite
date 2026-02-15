@@ -231,7 +231,13 @@ namespace DuplicationPlugin
                                     // We then use its texture params as the texture params in the variation
                                     foreach (dynamic texParam in (dynamic)mvm.TextureParameters)
                                     {
-                                        matProperties.Shader.TextureParameters.Add(texParam);
+                                        // do NOT do this! it will make a references internally to the same class, making all
+                                        // instances the same! bad wannkunst bad!
+                                        //matProperties.Shader.TextureParameters.Add(texParam);
+                                        dynamic newTexParam = TypeLibrary.CreateObject("TextureShaderParameter");
+                                        newTexParam.ParameterName = texParam.ParameterName;
+                                        newTexParam.Value = texParam.Value;
+                                        matProperties.Shader.TextureParameters.Add(newTexParam);
                                     }
                                     break;
                                 }
@@ -347,7 +353,13 @@ namespace DuplicationPlugin
                                     // We then use its texture params as the texture params in the variation
                                     foreach (dynamic texParam in (dynamic)mvm.TextureParameters)
                                     {
-                                        matProperties.Shader.TextureParameters.Add(texParam);
+                                        // do NOT do this! it will make a references internally to the same class, making all
+                                        // instances the same! bad wannkunst bad!
+                                        //matProperties.Shader.TextureParameters.Add(texParam);
+                                        dynamic newTexParam = TypeLibrary.CreateObject("TextureShaderParameter");
+                                        newTexParam.ParameterName = texParam.ParameterName;
+                                        newTexParam.Value = texParam.Value;
+                                        matProperties.Shader.TextureParameters.Add(newTexParam);
                                     }
                                     break;
                                 }
