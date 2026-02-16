@@ -211,14 +211,38 @@ float4 TransformPosition(VertexShaderInput Input, float3 Position)
 	uint BoneIndices[SHADER_BONES_PER_VERTEX];
 	float BoneWeights[SHADER_BONES_PER_VERTEX];
 
-	BoneIndices[0] = Input.BoneIndices.x;
-	BoneIndices[1] = Input.BoneIndices.y;
-	BoneIndices[2] = Input.BoneIndices.z;
-	BoneIndices[3] = Input.BoneIndices.w;
-	BoneWeights[0] = Input.BoneWeights.x;
-	BoneWeights[1] = Input.BoneWeights.y;
-	BoneWeights[2] = Input.BoneWeights.z;
-	BoneWeights[3] = Input.BoneWeights.w;
+	//TODO fix mesh being invisible with SHADER_BONES_PER_VERTEX < 4
+	#if SHADER_BONES_PER_VERTEX == 1
+			BoneIndices[0] = Input.BoneIndices.x;
+			BoneWeights[0] = Input.BoneWeights.x;
+	#endif
+
+	#if SHADER_BONES_PER_VERTEX == 2
+			BoneIndices[0] = Input.BoneIndices.x;
+			BoneIndices[1] = Input.BoneIndices.y;
+			BoneWeights[0] = Input.BoneWeights.x;
+			BoneWeights[1] = Input.BoneWeights.y;
+	#endif
+
+	#if SHADER_BONES_PER_VERTEX == 3
+			BoneIndices[0] = Input.BoneIndices.x;
+			BoneIndices[1] = Input.BoneIndices.y;
+			BoneIndices[2] = Input.BoneIndices.z;
+			BoneWeights[0] = Input.BoneWeights.x;
+			BoneWeights[1] = Input.BoneWeights.y;
+			BoneWeights[2] = Input.BoneWeights.z;
+	#endif
+
+	#if SHADER_BONES_PER_VERTEX == 4
+			BoneIndices[0] = Input.BoneIndices.x;
+			BoneIndices[1] = Input.BoneIndices.y;
+			BoneIndices[2] = Input.BoneIndices.z;
+			BoneIndices[3] = Input.BoneIndices.w;
+			BoneWeights[0] = Input.BoneWeights.x;
+			BoneWeights[1] = Input.BoneWeights.y;
+			BoneWeights[2] = Input.BoneWeights.z;
+			BoneWeights[3] = Input.BoneWeights.w;
+	#endif
 
 	#if SHADER_BONES_PER_VERTEX > 4
 	BoneIndices[4] = Input.BoneIndices2.x;
@@ -243,14 +267,38 @@ float3 TransformTBN(VertexShaderInput Input, float3 Value)
 	uint BoneIndices[SHADER_BONES_PER_VERTEX];
 	float BoneWeights[SHADER_BONES_PER_VERTEX];
 
-	BoneIndices[0] = Input.BoneIndices.x;
-	BoneIndices[1] = Input.BoneIndices.y;
-	BoneIndices[2] = Input.BoneIndices.z;
-	BoneIndices[3] = Input.BoneIndices.w;
-	BoneWeights[0] = Input.BoneWeights.x;
-	BoneWeights[1] = Input.BoneWeights.y;
-	BoneWeights[2] = Input.BoneWeights.z;
-	BoneWeights[3] = Input.BoneWeights.w;
+	//TODO fix mesh being invisible with SHADER_BONES_PER_VERTEX < 4
+	#if SHADER_BONES_PER_VERTEX == 1
+			BoneIndices[0] = Input.BoneIndices.x;
+			BoneWeights[0] = Input.BoneWeights.x;
+	#endif
+
+	#if SHADER_BONES_PER_VERTEX == 2
+			BoneIndices[0] = Input.BoneIndices.x;
+			BoneIndices[1] = Input.BoneIndices.y;
+			BoneWeights[0] = Input.BoneWeights.x;
+			BoneWeights[1] = Input.BoneWeights.y;
+	#endif
+
+	#if SHADER_BONES_PER_VERTEX == 3
+			BoneIndices[0] = Input.BoneIndices.x;
+			BoneIndices[1] = Input.BoneIndices.y;
+			BoneIndices[2] = Input.BoneIndices.z;
+			BoneWeights[0] = Input.BoneWeights.x;
+			BoneWeights[1] = Input.BoneWeights.y;
+			BoneWeights[2] = Input.BoneWeights.z;
+	#endif
+
+	#if SHADER_BONES_PER_VERTEX == 4
+			BoneIndices[0] = Input.BoneIndices.x;
+			BoneIndices[1] = Input.BoneIndices.y;
+			BoneIndices[2] = Input.BoneIndices.z;
+			BoneIndices[3] = Input.BoneIndices.w;
+			BoneWeights[0] = Input.BoneWeights.x;
+			BoneWeights[1] = Input.BoneWeights.y;
+			BoneWeights[2] = Input.BoneWeights.z;
+			BoneWeights[3] = Input.BoneWeights.w;
+	#endif
 
 	#if SHADER_BONES_PER_VERTEX > 4
 	BoneIndices[4] = Input.BoneIndices2.x;
