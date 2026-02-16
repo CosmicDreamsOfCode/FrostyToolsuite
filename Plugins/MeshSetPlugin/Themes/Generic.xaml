@@ -133,7 +133,7 @@
                                                 <ComboBox x:Name="PART_RenderModeComboBox" Height="22" Width="115" Padding="4,2,4,2">
                                                     <ComboBoxItem Content="Default Lit" IsSelected="True"/>
                                                     <ComboBoxItem Content="Wireframe"/>
-                                                    <ComboBoxItem Content="BaseColor"/>
+                                                    <ComboBoxItem Content="DiffuseColor"/>
                                                     <ComboBoxItem Content="SpecularColor"/>
                                                     <ComboBoxItem Content="Normals"/>
                                                     <ComboBoxItem Content="MaterialAO"/>

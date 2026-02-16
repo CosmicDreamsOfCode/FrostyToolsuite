@@ -181,11 +181,11 @@ float4 PS_DebugRenderMode(PS_IN In) : SV_Target
 		discard;
 		
 	if (g_renderMode <= 1.0f) // Wireframe
-		return ((GBuffer.BaseColor.r + GBuffer.BaseColor.g + GBuffer.BaseColor.b + GBuffer.SpecularColor.r + GBuffer.SpecularColor.g + GBuffer.SpecularColor.b) > 0.0f) ? float4(1,1,1,1) : float4(0,0,0,0);
+        return ((GBuffer.BaseColor.r + GBuffer.BaseColor.g + GBuffer.BaseColor.b + GBuffer.SpecularColor.r + GBuffer.SpecularColor.g + GBuffer.SpecularColor.b) > 0.0f) ? float4(1, 1, 1, 1) : float4(0, 0, 0, 0);
 	else if (g_renderMode <= 2.0f) // BaseColor
-		return float4(GBuffer.BaseColor, 1.0f);
+        return float4(approximationLinearToSRGB(GBuffer.BaseColor), 1.0f);
 	else if (g_renderMode <= 3.0f) // SpecularColor
-		return float4(GBuffer.SpecularColor, 1.0f);
+        return float4(approximationLinearToSRGB(GBuffer.SpecularColor), 1.0f);
 	else if (g_renderMode <= 4.0f) // Normals
 		return float4(GBuffer.WorldNormals * 0.5f + 0.5f, 1.0f);
 	else if (g_renderMode <= 5.0f) // MaterialAO
