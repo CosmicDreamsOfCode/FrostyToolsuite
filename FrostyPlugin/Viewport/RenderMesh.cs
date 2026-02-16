@@ -235,7 +235,7 @@ namespace Frosty.Core.Viewport
             bool bLoaded = false;
 
             string shaderPath = "Shaders/" + shaderFilename + ".bin";
-            if (File.Exists(shaderPath) && new FileInfo(shaderPath).Length != 24)
+            if (File.Exists(shaderPath) && new FileInfo(shaderPath).Length != 24) //Check if we have a custom shader and if it's actually valid
             {
                 int nameHash = Fnv1.HashString(Name);
                 using (NativeReader reader = new NativeReader(new FileStream(shaderPath, FileMode.Open, FileAccess.Read)))
@@ -384,6 +384,8 @@ namespace Frosty.Core.Viewport
             int size = PixelConstantsSize;
             size = ((size + 15) / 16) * 16;
 
+            //TODO: Don't just make everything a float4, dynamically write padding based on the type
+
             if (size > 0)
             {
                 using (DataStream stream = new DataStream(size, false, true))
@@ -398,37 +400,43 @@ namespace Frosty.Core.Viewport
 
                                     float defValue = Convert.ToSingle(param.BoolValue);
                                     stream.Write<float>(defValue);
-                                    stream.Write<float>(0.0f);
+                                    stream.Write<float>(0.0f); //pad to float4
                                     stream.Write<float>(0.0f);
                                     stream.Write<float>(0.0f);
                                     break;
                                 }
-                            //case ShaderParameterType.Float:
-                            //    {
-                            //        ShaderParameter vecParam = pixelParamValues.Find((ShaderParameter a) => a.Name == param.Name) ?? param;
+                            case ShaderParameterType.Float:
+                                {
+                                    ShaderParameter vecParam = pixelParamValues.Find((ShaderParameter a) => a.Name == param.Name) ?? param;
 
-                            //        stream.Write<float>(param.FloatValue);
-                            //        break;
-                            //    }
-                            //case ShaderParameterType.Float2:
-                            //    {
-                            //        ShaderParameter vecParam = pixelParamValues.Find((ShaderParameter a) => a.Name == param.Name) ?? param;
+                                    stream.Write<float>(param.FloatValue);
+                                    stream.Write<float>(0.0f); //pad to float4
+                                    stream.Write<float>(0.0f);
+                                    stream.Write<float>(0.0f);
+                                    break;
+                                }
+                            case ShaderParameterType.Float2:
+                                {
+                                    ShaderParameter vecParam = pixelParamValues.Find((ShaderParameter a) => a.Name == param.Name) ?? param;
 
-                            //        Vector2 value = param.Float2Value;
-                            //        stream.Write<float>(value.X);
-                            //        stream.Write<float>(value.Y);
-                            //        break;
-                            //    }
-                            //case ShaderParameterType.Float3:
-                            //    {
-                            //        ShaderParameter vecParam = pixelParamValues.Find((ShaderParameter a) => a.Name == param.Name) ?? param;
+                                    Vector2 value = param.Float2Value;
+                                    stream.Write<float>(value.X);
+                                    stream.Write<float>(value.Y);
+                                    stream.Write<float>(0.0f); //pad to float4
+                                    stream.Write<float>(0.0f);
+                                    break;
+                                }
+                            case ShaderParameterType.Float3:
+                                {
+                                    ShaderParameter vecParam = pixelParamValues.Find((ShaderParameter a) => a.Name == param.Name) ?? param;
 
-                            //        Vector3 value = param.Float3Value;
-                            //        stream.Write<float>(value.X);
-                            //        stream.Write<float>(value.Y);
-                            //        stream.Write<float>(value.Z);
-                            //        break;
-                            //    }
+                                    Vector3 value = param.Float3Value;
+                                    stream.Write<float>(value.X);
+                                    stream.Write<float>(value.Y);
+                                    stream.Write<float>(value.Z);
+                                    stream.Write<float>(0.0f); //pad to float4
+                                    break;
+                                }
                             default:
                                 {
                                     ShaderParameter vecParam = pixelParamValues.Find((ShaderParameter a) => a.Name == param.Name) ?? param;
@@ -489,6 +497,8 @@ namespace Frosty.Core.Viewport
             int size = PixelConstantsSize;
             size = ((size + 15) / 16) * 16;
 
+            //TODO: Don't just make everything a float4, dynamically write padding based on the type
+
             if (size > 0)
             {
                 using (DataStream stream = new DataStream(size, false, true))
@@ -504,7 +514,7 @@ namespace Frosty.Core.Viewport
                                     {
                                         float defValue = Convert.ToSingle(boolParam.Value);
                                         stream.Write<float>(defValue);
-                                        stream.Write<float>(0.0f);
+                                        stream.Write<float>(0.0f); //pad to float4
                                         stream.Write<float>(0.0f);
                                         stream.Write<float>(0.0f);
                                     }
@@ -512,59 +522,71 @@ namespace Frosty.Core.Viewport
                                     {
                                         float defValue = Convert.ToSingle(param.BoolValue);
                                         stream.Write<float>(defValue);
-                                        stream.Write<float>(0.0f);
+                                        stream.Write<float>(0.0f); //pad to float4
                                         stream.Write<float>(0.0f);
                                         stream.Write<float>(0.0f);
                                     }
                                     break;
                                 }
-                            //case ShaderParameterType.Float:
-                            //    {
-                            //        dynamic vecParam = material.VectorParameters.Find((dynamic a) => a.ParameterName == param.Name);
-                            //        if (vecParam != null)
-                            //        {
-                            //            stream.Write<float>(vecParam.Value.x);
-                            //        }
-                            //        else
-                            //        {
-                            //            stream.Write<float>(param.FloatValue);
-                            //        }
-                            //        break;
-                            //    }
-                            //case ShaderParameterType.Float2:
-                            //    {
-                            //        dynamic vecParam = material.VectorParameters.Find((dynamic a) => a.ParameterName == param.Name);
-                            //        if (vecParam != null)
-                            //        {
-                            //            stream.Write<float>(vecParam.Value.x);
-                            //            stream.Write<float>(vecParam.Value.y);
-                            //        }
-                            //        else
-                            //        {
-                            //            Vector2 defValue = param.Float2Value;
-                            //            stream.Write<float>(defValue.X);
-                            //            stream.Write<float>(defValue.Y);
-                            //        }
-                            //        break;
-                            //    }
-                            //case ShaderParameterType.Float3:
-                            //    {
-                            //        dynamic vecParam = material.VectorParameters.Find((dynamic a) => a.ParameterName == param.Name);
-                            //        if (vecParam != null)
-                            //        {
-                            //            stream.Write<float>(vecParam.Value.x);
-                            //            stream.Write<float>(vecParam.Value.y);
-                            //            stream.Write<float>(vecParam.Value.z);
-                            //        }
-                            //        else
-                            //        {
-                            //            Vector3 defValue = param.Float3Value;
-                            //            stream.Write<float>(defValue.X);
-                            //            stream.Write<float>(defValue.Y);
-                            //            stream.Write<float>(defValue.Z);
-                            //        }
-                            //        break;
-                            //    }
+                            case ShaderParameterType.Float:
+                                {
+                                    dynamic vecParam = material.VectorParameters.Find((dynamic a) => a.ParameterName == param.Name);
+                                    if (vecParam != null)
+                                    {
+                                        stream.Write<float>(vecParam.Value.x);
+                                        stream.Write<float>(0.0f); //pad to float4
+                                        stream.Write<float>(0.0f);
+                                        stream.Write<float>(0.0f);
+                                    }
+                                    else
+                                    {
+                                        stream.Write<float>(param.FloatValue);
+                                        stream.Write<float>(0.0f); //pad to float4
+                                        stream.Write<float>(0.0f);
+                                        stream.Write<float>(0.0f);
+                                    }
+                                    break;
+                                }
+                            case ShaderParameterType.Float2:
+                                {
+                                    dynamic vecParam = material.VectorParameters.Find((dynamic a) => a.ParameterName == param.Name);
+                                    if (vecParam != null)
+                                    {
+                                        stream.Write<float>(vecParam.Value.x);
+                                        stream.Write<float>(vecParam.Value.y);
+                                        stream.Write<float>(0.0f); //pad to float4
+                                        stream.Write<float>(0.0f);
+                                    }
+                                    else
+                                    {
+                                        Vector2 defValue = param.Float2Value;
+                                        stream.Write<float>(defValue.X);
+                                        stream.Write<float>(defValue.Y);
+                                        stream.Write<float>(0.0f); //pad to float4
+                                        stream.Write<float>(0.0f);
+                                    }
+                                    break;
+                                }
+                            case ShaderParameterType.Float3:
+                                {
+                                    dynamic vecParam = material.VectorParameters.Find((dynamic a) => a.ParameterName == param.Name);
+                                    if (vecParam != null)
+                                    {
+                                        stream.Write<float>(vecParam.Value.x);
+                                        stream.Write<float>(vecParam.Value.y);
+                                        stream.Write<float>(vecParam.Value.z);
+                                        stream.Write<float>(0.0f); //pad to float4
+                                    }
+                                    else
+                                    {
+                                        Vector3 defValue = param.Float3Value;
+                                        stream.Write<float>(defValue.X);
+                                        stream.Write<float>(defValue.Y);
+                                        stream.Write<float>(defValue.Z);
+                                        stream.Write<float>(0.0f); //pad to float4
+                                    }
+                                    break;
+                                }
                             default:
                                 {
                                     dynamic vecParam = material.VectorParameters.Find((dynamic a) => a.ParameterName == param.Name);
@@ -1510,25 +1532,30 @@ namespace Frosty.Core.Viewport
                             ShaderParameter param = null;
 
                             int size = 0;
+                            //TODO: Don't just make everything a float4, dynamically write padding based on the type
                             switch (paramType)
                             {
                                 case ShaderParameterType.Bool:
-                                    size = 16; //TODO: figure out how to fix this shit
+                                    //size = 1;
+                                    size = 16;
                                     param = new ShaderParameter(name, paramType, bool.Parse(defValueArr[0].Trim()));
                                     break;
                                 case ShaderParameterType.Float:
-                                    size = 4;
+                                    //size = 4;
+                                    size = 16;
                                     param = new ShaderParameter(name, paramType, float.Parse(defValueArr[0].Trim(), ci));
                                     break;
                                 case ShaderParameterType.Float2:
-                                    size = 8;
+                                    //size = 8;
+                                    size = 16;
                                     param = new ShaderParameter(name, paramType,
                                         float.Parse(defValueArr[0].Trim(), ci),
                                         float.Parse(defValueArr[1].Trim(), ci)
                                         );
                                     break;
                                 case ShaderParameterType.Float3:
-                                    size = 12;
+                                    //size = 12;
+                                    size = 16;
                                     param = new ShaderParameter(name, paramType,
                                         float.Parse(defValueArr[0].Trim(), ci),
                                         float.Parse(defValueArr[1].Trim(), ci),
@@ -1731,8 +1758,9 @@ namespace Frosty.Core.Viewport
                 sb.AppendLine("cbuffer ExternalPixelParameters : register(b2) {");
                 foreach (ShaderParameter param in permutation.PixelParameters)
                 {
-                    string type = param.Type == ShaderParameterType.Bool ? "float4" : param.Type.ToString().ToLower(); //TODO figure out how to fix this shit
-                    sb.AppendLine(string.Format("{0} {1};", type, param.Name));
+                    //TODO: Don't just make everything a float4, dynamically write padding based on the type
+                    //sb.AppendLine(string.Format("{0} {1};", param.Type.ToString().ToLower(), param.Name));
+                    sb.AppendLine(string.Format("{0} {1};", "float4", param.Name));
                 }
                 sb.AppendLine("};");
 
