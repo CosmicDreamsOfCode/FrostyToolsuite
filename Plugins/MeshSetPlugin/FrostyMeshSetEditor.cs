@@ -2475,7 +2475,7 @@ namespace MeshSetPlugin
                 for (int i = 0; i < fmesh.PolygonCount; i++)
                 {
                     //check if polygon is comprised of more than 3 vertices
-                    if (fmesh.GetPolygonSize(i) > 3)
+                    if (fmesh.GetPolygonSize(i) != 3)
                     {
                         throw new FBXImportNotTriangulatedException(sectionNode.Name);
                     }
