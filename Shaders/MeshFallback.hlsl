@@ -840,17 +840,26 @@ PS_OUT PS_MeshFallback(PS_IN In)
 
 	float Metallic = (MetallicChannel > 0.5f) ? Norm.b : 0.0f;
 	float MaterialAO = (AOChannel > 0.5f) ? AOSlice.r : 1.0f;
+
+	//Detail
+	float3 detailMasks;
+	detailMasks.x = AOSlice.y < 0.300000012;
+	detailMasks.y = (AOSlice.y < 0.600000024) - detailMasks.x;
+	detailMasks.z = AOSlice.y > 0.800000012;
 	
-	uint sliceIndex = (uint)AOSlice.g * 2.5;
-	float sliceIndexFloat = (AOChannel > 1.5f) ? Norm.a : AOSlice.g;
-		
+	float detailMaskSmoothness = dot(detailMasks, SmoothnessDetail_Intensity.xyz);
+	float detailMaskNormal = dot(detailMasks, NormalDetail_Intensity.xyz) * 0.5;
+	
+	float tilingSizes = dot(detailMasks, Detail_Tiling.xyz);
+	float3 detailTexCoord;
+	detailTexCoord.xy = In.TexCoord0 * tilingSizes;
+	detailTexCoord.z = AOSlice.y * 2.5;
+	float4 DetailNS = texture_NormalDetailTextureArray.Sample(sampler1_s, detailTexCoord);
+
 	Metallic = (MetallicChannel > 1.5f) ? Norm.a : Metallic;
 	MaterialAO = (AOChannel > 1.5f) ? Norm.b : MaterialAO;
 	MaterialAO = (AOChannel > 2.5f) ? Norm.a : MaterialAO;
 	MaterialAO = (SmoothnessChannel.y > 0.5f) ? RSSSAO.b : MaterialAO;
-	
-	sliceIndex = (AOChannel > 1.5f) ? (uint)Norm.a * 2.5 : sliceIndex;
-	float4 DetailNS = texture_NormalDetailTextureArray.Sample(sampler1_s, float3(In.TexCoord0 * Detail_Tiling[sliceIndex], sliceIndex));
 	
 	if (MultiUV > 0.5f)
 	{
@@ -907,17 +916,9 @@ PS_OUT PS_MeshFallback(PS_IN In)
 	
 	if ((Detail_Tiling[0] + Detail_Tiling[1] + Detail_Tiling[2]) > 0)
 	{
-	    float3 sliceMasks;
-		sliceMasks.x = sliceIndexFloat < 0.300000012f;
-		sliceMasks.y = (sliceIndexFloat < 0.600000024f) - sliceMasks.x;
-		sliceMasks.z = sliceIndexFloat > 0.649999976f;
-	
-		float sliceMaskNrm = dot(sliceMasks, NormalDetail_Intensity.xyz) * 0.5;
-		float sliceMaskSmooth = dot(sliceMasks, SmoothnessDetail_Intensity.xyz);
-	
 		float3 detailNrm = DeriveNormalZ(DetailNS.xy * 2 - 1);
-	    Norm.xyz = detailNrm * sliceMaskNrm + Norm.xyz;
-		Smoothness = lerp(Smoothness, dot(Smoothness.xx, DetailNS.zz), sliceMaskSmooth);
+	    Norm.xyz = detailNrm * detailMaskNormal + Norm.xyz;
+		Smoothness = lerp(Smoothness, dot(Smoothness.xx, DetailNS.zz), detailMaskSmoothness);
 	}
 	
 	Norm.xyz = CalcWorldSpaceNormals(normalize(Norm.xyz), In.Tangent, In.Bitangent, In.Normal);
