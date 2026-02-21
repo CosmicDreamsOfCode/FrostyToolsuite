@@ -908,9 +908,9 @@ PS_OUT PS_MeshFallback(PS_IN In)
 	if ((Detail_Tiling[0] + Detail_Tiling[1] + Detail_Tiling[2]) > 0)
 	{
 	    float3 sliceMasks;
-		sliceMasks.x = sliceIndexFloat < 0.3f;
-		sliceMasks.y = (sliceIndexFloat < 0.6f) - sliceMasks.x;
-		sliceMasks.z = sliceIndexFloat > 0.8f;
+		sliceMasks.x = sliceIndexFloat < 0.300000012f;
+		sliceMasks.y = (sliceIndexFloat < 0.600000024f) - sliceMasks.x;
+		sliceMasks.z = sliceIndexFloat > 0.649999976f;
 	
 		float sliceMaskNrm = dot(sliceMasks, NormalDetail_Intensity.xyz) * 0.5;
 		float sliceMaskSmooth = dot(sliceMasks, SmoothnessDetail_Intensity.xyz);
