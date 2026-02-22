@@ -3820,63 +3820,68 @@ namespace MeshSetPlugin
                 MeshMaterialCollection materials = GetVariation(selectedPreviewIndex);
                 FrostyTaskWindow.Show("Extracting Material Info", "", (task) =>
                 {
-                    using (NativeWriter writer = new NativeWriter(new FileStream(sfd.FileName, FileMode.Create)))
+                    int lodindex = 0;
+                    foreach (MeshSetLod lod in meshSet.Lods)
                     {
-                        int index = 0;
-                        foreach (MeshMaterial material in materials)
+                        using (NativeWriter writer = new NativeWriter(new FileStream(sfd.FileName.Replace(".xml", $"_lod{lodindex}.xml"), FileMode.Create)))
                         {
-                            MeshSetSection section = meshSet.Lods[0].Sections.Find((MeshSetSection a) => a.MaterialId == index);
-                            if (section == null)
-                                continue;
-
-                            EbxAssetEntry shaderEntry = App.AssetManager.GetEbxEntry(material.Shader.External.FileGuid);
-                            if (shaderEntry == null)
-                                continue;
-
-                            writer.WriteLine("<!-- " + shaderEntry.Name + " -->");
-                            writer.WriteLine("<shader profile=\"" + ProfilesLibrary.ProfileName + "\">");
-                            writer.WriteLine("\t<permutations>");
-                            writer.WriteLine("\t\t<permutation>");
-                            writer.WriteLine("\t\t\t<vertexshader>");
-                            writer.WriteLine("\t\t\t\t<vertexlayout>");
-                            foreach (GeometryDeclarationDesc.Element elem in section.GeometryDeclDesc[0].Elements)
+                            int index = 0;
+                            foreach (MeshMaterial material in materials)
                             {
-                                if (elem.Usage == VertexElementUsage.Unknown)
+                                MeshSetSection section = meshSet.Lods[lodindex].Sections.Find((MeshSetSection a) => a.MaterialId == index);
+                                if (section == null)
                                     continue;
 
-                                string line = "\t\t\t\t\t<layoutelement usage=\"" + elem.Usage + "\" format=\"" + elem.Format + "\" ";
-                                if (section.GeometryDeclDesc[0].StreamCount > 1)
-                                    line += "stream=\"" + elem.StreamIndex + "\"";
-                                line += "/>";
-                                writer.WriteLine(line);
+                                EbxAssetEntry shaderEntry = App.AssetManager.GetEbxEntry(material.Shader.External.FileGuid);
+                                if (shaderEntry == null)
+                                    continue;
+
+                                writer.WriteLine("<!-- " + shaderEntry.Name + " -->");
+                                writer.WriteLine("<shader profile=\"" + ProfilesLibrary.ProfileName + "\">");
+                                writer.WriteLine("\t<permutations>");
+                                writer.WriteLine("\t\t<permutation>");
+                                writer.WriteLine("\t\t\t<vertexshader>");
+                                writer.WriteLine("\t\t\t\t<vertexlayout>");
+                                foreach (GeometryDeclarationDesc.Element elem in section.GeometryDeclDesc[0].Elements)
+                                {
+                                    if (elem.Usage == VertexElementUsage.Unknown)
+                                        continue;
+
+                                    string line = "\t\t\t\t\t<layoutelement usage=\"" + elem.Usage + "\" format=\"" + elem.Format + "\" ";
+                                    if (section.GeometryDeclDesc[0].StreamCount > 1)
+                                        line += "stream=\"" + elem.StreamIndex + "\"";
+                                    line += "/>";
+                                    writer.WriteLine(line);
+                                }
+                                writer.WriteLine("\t\t\t\t</vertexlayout>");
+                                writer.WriteLine("\t\t\t</vertexshader>");
+                                writer.WriteLine("\t\t\t<pixelshader>");
+                                writer.WriteLine("\t\t\t\t<parameters>");
+                                foreach (dynamic boolParam in material.BoolParameters)
+                                {
+                                    string paramName = boolParam.ParameterName;
+                                    writer.WriteLine("\t\t\t\t\t<parameter name=\"" + paramName + "\" type=\"Bool\"/>");
+                                }
+                                foreach (dynamic vecParam in material.VectorParameters)
+                                {
+                                    string paramName = vecParam.ParameterName;
+                                    writer.WriteLine("\t\t\t\t\t<parameter name=\"" + paramName + "\" type=\"Float4\"/>");
+                                }
+                                writer.WriteLine("\t\t\t\t</parameters>");
+                                writer.WriteLine("\t\t\t\t<textures>");
+                                foreach (dynamic texParam in material.TextureParameters)
+                                {
+                                    string paramName = texParam.ParameterName;
+                                    writer.WriteLine("\t\t\t\t\t<texture name=\"" + paramName + "\" type=\"<Replace>\"/>");
+                                }
+                                writer.WriteLine("\t\t\t\t</textures>");
+                                writer.WriteLine("\t\t\t</pixelshader>");
+                                writer.WriteLine("\t\t</permutation>");
+                                writer.WriteLine("\t</permutation>");
+                                writer.WriteLine("</shader>");
                             }
-                            writer.WriteLine("\t\t\t\t</vertexlayout>");
-                            writer.WriteLine("\t\t\t</vertexshader>");
-                            writer.WriteLine("\t\t\t<pixelshader>");
-                            writer.WriteLine("\t\t\t\t<parameters>");
-                            foreach (dynamic boolParam in material.BoolParameters)
-                            {
-                                string paramName = boolParam.ParameterName;
-                                writer.WriteLine("\t\t\t\t\t<parameter name=\"" + paramName + "\" type=\"Bool\"/>");
-                            }
-                            foreach (dynamic vecParam in material.VectorParameters)
-                            {
-                                string paramName = vecParam.ParameterName;
-                                writer.WriteLine("\t\t\t\t\t<parameter name=\"" + paramName + "\" type=\"Float4\"/>");
-                            }
-                            writer.WriteLine("\t\t\t\t</parameters>");
-                            writer.WriteLine("\t\t\t\t<textures>");
-                            foreach (dynamic texParam in material.TextureParameters)
-                            {
-                                string paramName = texParam.ParameterName;
-                                writer.WriteLine("\t\t\t\t\t<texture name=\"" + paramName + "\" type=\"<Replace>\"/>");
-                            }
-                            writer.WriteLine("\t\t\t\t</textures>");
-                            writer.WriteLine("\t\t\t</pixelshader>");
-                            writer.WriteLine("\t\t</permutation>");
-                            writer.WriteLine("\t</permutation>");
-                            writer.WriteLine("</shader>");
                         }
+                        lodindex++;
                     }
                 });
             }
