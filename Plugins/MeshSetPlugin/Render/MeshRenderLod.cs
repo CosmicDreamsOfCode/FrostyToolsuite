@@ -394,13 +394,13 @@ namespace MeshSetPlugin.Render
                             {
                                 if (element.Format == VertexElementFormat.Float3 || element.Format == VertexElementFormat.Float4)
                                 {
-                                    vertex.Tangent = new Vector4(reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat(), 1.0f);
+                                    vertex.Tangent = new Vector4(-reader.ReadFloat(), -reader.ReadFloat(), -reader.ReadFloat(), 1.0f);
                                     if (element.Format == VertexElementFormat.Float4)
                                         vertex.Tangent.W = reader.ReadFloat();
                                 }
                                 else if (element.Format == VertexElementFormat.Half3 || element.Format == VertexElementFormat.Half4)
                                 {
-                                    vertex.Tangent = new Vector4(HalfUtils.Unpack(reader.ReadUShort()), HalfUtils.Unpack(reader.ReadUShort()), HalfUtils.Unpack(reader.ReadUShort()), 1.0f);
+                                    vertex.Tangent = new Vector4(-HalfUtils.Unpack(reader.ReadUShort()), -HalfUtils.Unpack(reader.ReadUShort()), -HalfUtils.Unpack(reader.ReadUShort()), 1.0f);
                                     if (element.Format == VertexElementFormat.Half4)
                                         vertex.Tangent.W = HalfUtils.Unpack(reader.ReadUShort());
                                 }
@@ -412,12 +412,12 @@ namespace MeshSetPlugin.Render
                             {
                                 if (element.Format == VertexElementFormat.Half4)
                                 {
-                                    vertex.Tangent = new Vector4(HalfUtils.Unpack(reader.ReadUShort()), HalfUtils.Unpack(reader.ReadUShort()), HalfUtils.Unpack(reader.ReadUShort()), 1.0f);
+                                    vertex.Tangent = new Vector4(-HalfUtils.Unpack(reader.ReadUShort()), -HalfUtils.Unpack(reader.ReadUShort()), -HalfUtils.Unpack(reader.ReadUShort()), 1.0f);
                                     vertex.Bitangent.W = HalfUtils.Unpack(reader.ReadUShort());
                                 }
                                 else if (element.Format == VertexElementFormat.Float4)
                                 {
-                                    vertex.Tangent = new Vector4(reader.ReadFloat(), reader.ReadFloat(), reader.ReadFloat(), 1.0f);
+                                    vertex.Tangent = new Vector4(-reader.ReadFloat(), -reader.ReadFloat(), -reader.ReadFloat(), 1.0f);
                                     vertex.Bitangent.W = reader.ReadFloat();
                                 }
                                 else

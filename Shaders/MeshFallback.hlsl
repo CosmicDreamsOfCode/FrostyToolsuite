@@ -345,7 +345,7 @@ VS_OUT VS_MeshFallback(VS_IN In)
 	Out.Tangent = TransformTBN(In, In.Tangent.xyz * float3(-1,1,1));
     Out.Bitangent.xyz = TransformTBN(In, In.Bitangent.xyz * float3(-1,1,1));
 #else
-    Out.Tangent = TransformTBN(In, -In.Tangent.xyz);
+    Out.Tangent = TransformTBN(In, In.Tangent.xyz);
     Out.Bitangent.xyz = TransformTBN(In, In.Bitangent.xyz);
 #endif
 	Out.Bitangent.w = In.Bitangent.w;
