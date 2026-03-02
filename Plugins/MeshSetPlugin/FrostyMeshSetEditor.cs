@@ -3442,6 +3442,8 @@ namespace MeshSetPlugin
 
         private List<ShaderBlockDepot> shaderBlockDepots = new List<ShaderBlockDepot>();
 
+        private string lastImportedMesh = "";
+
         static FrostyMeshSetEditor()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(FrostyMeshSetEditor), new FrameworkPropertyMetadata(typeof(FrostyMeshSetEditor)));
@@ -3618,6 +3620,7 @@ namespace MeshSetPlugin
             {
                 new ToolbarItem("Export", "Export MeshSet", "Images/Export.png", new RelayCommand((object state) => { ExportButton_Click(this, new RoutedEventArgs()); })),
                 new ToolbarItem("Import", "Import MeshSet", "Images/Import.png", new RelayCommand((object state) => { ImportButton_Click(this, new RoutedEventArgs()); })),
+                new ToolbarItem("Reimport Previous", "Reimport MeshSet", "Images/Import.png", new RelayCommand((object state) => { ReimportButton_Click(this, new RoutedEventArgs()); })),
             };
         }
 
@@ -4593,8 +4596,9 @@ namespace MeshSetPlugin
                         try
                         {
                             // import
-                        FBXImporter importer = new FBXImporter(logger);
-                        importer.ImportFBX(ofd.FileName, meshSet, localAsset, localEntry, settings);
+                            FBXImporter importer = new FBXImporter(logger);
+                            importer.ImportFBX(ofd.FileName, meshSet, localAsset, localEntry, settings);
+                            lastImportedMesh = ofd.FileName;
                         }
                         catch (Exception exp)
                         {
@@ -4618,6 +4622,60 @@ namespace MeshSetPlugin
                     InvokeOnAssetModified();
                 }
             }
+
+            viewport.SetPaused(false);
+        }
+
+        private void ReimportButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (lastImportedMesh == "")
+            {
+                ImportButton_Click(sender, e);
+                return;
+            }
+            else if (!File.Exists(lastImportedMesh))
+            {
+                logger.LogError($"File to reimport can't be found, Did you move or rename it?");
+                logger.LogError($"Expected: {lastImportedMesh}");
+                return;
+            }
+
+            viewport.SetPaused(true);
+
+            FrostyMeshImportSettings settings = null;
+            if (meshSet.Type == MeshType.MeshType_Skinned)
+            {
+                settings = new FrostyMeshImportSettings { SkeletonAsset = Config.Get<string>("MeshSetImportSkeleton", "", ConfigScope.Game) };
+            }
+
+            EbxAsset localAsset = asset;
+            EbxAssetEntry localEntry = AssetEntry as EbxAssetEntry;
+
+            FrostyTaskWindow.Show("Importing", "", (task) =>
+            {
+                try
+                {
+                    // import
+                    FBXImporter importer = new FBXImporter(logger);
+                    importer.ImportFBX(lastImportedMesh, meshSet, localAsset, localEntry, settings);
+                }
+                catch (Exception exp)
+                {
+                    if (!localEntry.IsAdded)
+                    {
+                        App.AssetManager.RevertAsset(localEntry);
+                    }
+                    logger.LogError(exp.Message);
+                }
+            });
+
+            screen.ClearMeshes(clearAll: true);
+            screen.AddMesh(meshSet, GetVariation(selectedPreviewIndex), Matrix.Identity /*Matrix.Scaling(1,1,-1)*/, LoadPose(AssetEntry.Filename, asset));
+
+            UpdateMeshSettings();
+            UpdateControls();
+
+            InvokeOnAssetModified();
 
             viewport.SetPaused(false);
         }
