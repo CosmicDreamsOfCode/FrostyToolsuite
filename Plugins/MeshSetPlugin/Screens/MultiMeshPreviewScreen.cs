@@ -50,11 +50,14 @@ namespace MeshSetPlugin.Screens
         {
         }
 
-        public MeshSet GetMesh(int meshId)
+        public List<MeshSet> GetAllMeshes(List<MeshSet> meshSets)
         {
-            if (meshId >= renderMeshes.Count)
-                return null;
-            return renderMeshes[meshId].Mesh;
+            foreach (MeshAndPreviewContainer renderMesh in renderMeshes)
+            {
+                if (renderMesh.MeshId > 0)
+                    meshSets.Add(renderMesh.Mesh);
+            }
+            return meshSets;
         }
 
         public int AddMesh(MeshSet mesh, MeshMaterialCollection materials, Matrix transform, MeshRenderSkeleton skeleton = null)
@@ -72,7 +75,7 @@ namespace MeshSetPlugin.Screens
                 IsLoading = false;
             });
 
-            return currentMeshId++;
+                return currentMeshId++;
         }
 
         public int AddLight(LightRenderType type, Matrix transform, Vector3 color, float intensity, float attenuationRadius, float sphereRadius)
