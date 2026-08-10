@@ -11,6 +11,7 @@ using Frosty.Core.Controls;
 using FrostySdk.Interfaces;
 using MeshSetPlugin.Resources;
 using MeshSetPlugin.Editors;
+using MeshSetPlugin.Fbx;
 
 namespace MeshSetPlugin
 {
@@ -51,6 +52,13 @@ namespace MeshSetPlugin
         [Editor(typeof(FrostySkeletonEditor))]
         public string SkeletonAsset { get => skeletonAsset; set => skeletonAsset = value; }
         private string skeletonAsset = "";
+    }
+
+    public class MeshImportSettings
+    {
+        [DisplayName("Skeleton")]
+        [Editor(typeof(FrostySkeletonEditor))]
+        public string SkeletonAsset { get; set; } = "";
     }
 
     public class MeshAssetDefinition : AssetDefinition
