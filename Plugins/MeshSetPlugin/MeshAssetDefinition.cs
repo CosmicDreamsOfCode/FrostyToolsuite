@@ -41,6 +41,7 @@ namespace MeshSetPlugin
 
         [DisplayName("Flatten Hierarchy (Blender)")]
         public bool FlattenHierarchy { get; set; }
+        [DisplayName("Export LOD0 Only")]
         public bool ExportSingleLod { get; set; }
         [DisplayName("Export Additional Meshes")]
         public bool ExportAdditionalMeshes { get; set; }

@@ -183,7 +183,6 @@ namespace MeshSetPlugin.Fbx
                 meshSet.ClearPartData();
                 List<BoundingBox> partBbox = new List<BoundingBox>();
                 List<LinearTransform> transforms = new List<LinearTransform>();
-                AxisAlignedBox AABBToWrite = new AxisAlignedBox();
                 // process each lod
                 for (int i = 0; i < meshSet.Lods.Count; i++)
                 {
@@ -195,8 +194,7 @@ namespace MeshSetPlugin.Fbx
                     meshSet.SetParts(ToAxisAlignedBoundingBoxes(partBbox), transforms);
                 }
 
-                AABBToWrite = ToAxisAlignedBoundingBox(boundingBox);
-                meshSet.BoundingBox = AABBToWrite;
+                meshSet.BoundingBox = ToAxisAlignedBoundingBox(boundingBox);
             }
 
             meshSet.FullName = resEntry.Name;
@@ -212,15 +210,9 @@ namespace MeshSetPlugin.Fbx
 
             foreach (BoundingBox bbox in inBoundingBoxes)
             {
-                Vec3 min = new Vec3();
-                min.x = bbox.Minimum.X;
-                min.y = bbox.Minimum.Y;
-                min.z = bbox.Minimum.Z;
+                Vec3 min = new Vec3() { x = bbox.Minimum.X, y = bbox.Minimum.Y, z = bbox.Minimum.Z };
 
-                Vec3 max = new Vec3();
-                max.x = bbox.Maximum.X;
-                max.y = bbox.Maximum.Y;
-                max.z = bbox.Maximum.Z;
+                Vec3 max = new Vec3() { x = bbox.Maximum.X, y = bbox.Maximum.Y, z = bbox.Maximum.Z };
 
                 retVal.Add(new AxisAlignedBox() { min = min, max = max });
             }
@@ -230,22 +222,11 @@ namespace MeshSetPlugin.Fbx
 
         private AxisAlignedBox ToAxisAlignedBoundingBox(BoundingBox inBoundingBox)
         {
-            AxisAlignedBox retVal = new AxisAlignedBox();
+            Vec3 min = new Vec3() { x = inBoundingBox.Minimum.X, y = inBoundingBox.Minimum.Y, z = inBoundingBox.Minimum.Z };
 
-            Vec3 min = new Vec3();
-            min.x = inBoundingBox.Minimum.X;
-            min.y = inBoundingBox.Minimum.Y;
-            min.z = inBoundingBox.Minimum.Z;
+            Vec3 max = new Vec3() { x = inBoundingBox.Maximum.X, y = inBoundingBox.Maximum.Y, z = inBoundingBox.Maximum.Z };
 
-            Vec3 max = new Vec3();
-            max.x = inBoundingBox.Maximum.X;
-            max.y = inBoundingBox.Maximum.Y;
-            max.z = inBoundingBox.Maximum.Z;
-
-            retVal.min = min;
-            retVal.max = max;
-
-            return retVal;
+            return new AxisAlignedBox() { min = min, max = max };
         }
 
         private float CubeMapFaceID(float inX, float inY, float inZ)
@@ -389,9 +370,6 @@ namespace MeshSetPlugin.Fbx
                 List<uint> indices = new List<uint>();
 
                 ProcessSection(new FbxNode[] { node }, meshLod, sectionIndex, vertices, indices, vertexBufferSize, ref totalIndices);
-                boundingBox = BoundingBox.Merge(previousBbox, boundingBox);
-                previousBbox = boundingBox;
-
 
                 sectionsVertices.Add(vertices.ToArray());
                 sectionsIndices.Add(indices);
@@ -1748,8 +1726,8 @@ namespace MeshSetPlugin.Fbx
                     vertexPositions.Add(new Vector3(position.X, position.Y, position.Z));
 
                 }
-                boundingBox = AABBFromPoints(vertexPositions).Item2;
-                //meshSet.BoundingBox = AABBFromPoints(vertexPositions).Item1;
+                boundingBox = BoundingBox.Merge(previousBbox, AABBFromPoints(vertexPositions).Item2);
+                previousBbox = boundingBox;
 
                 // generate part bounding box
                 /*if(meshSet.Type == MeshType.MeshType_Composite)
