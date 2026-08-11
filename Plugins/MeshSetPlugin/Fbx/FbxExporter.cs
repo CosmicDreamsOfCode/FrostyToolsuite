@@ -331,7 +331,6 @@ namespace MeshSetPlugin.Fbx
         {
             // RiggingOffsetJointComponent
             Dictionary<int, Vector3> jointOffsets = new Dictionary<int, Vector3>();
-            List<KeyValuePair<int, Vector3>> jointOffsetPairs = new List<KeyValuePair<int, Vector3>>();
             if (ProfilesLibrary.IsLoaded(ProfileVersion.NeedForSpeedHeat)) //It's possible other games use this but I don't want to risk it
             {
                 string meshName = meshAsset.Name;
