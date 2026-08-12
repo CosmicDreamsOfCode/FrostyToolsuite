@@ -39,6 +39,13 @@ namespace MeshSetPlugin
         [DisplayName("TXAA Enabled")]
         [Description("Enables TXAA for the mesh.")]
         public bool RenderTXAAEnabled { get; set; } = true;
+        [Category("Rendering")]
+        [DisplayName("Render Scale")]
+        [Description("Render scale percentage. 100% = Actual size of the viewport on screen")]
+        [Editor(typeof(FrostySliderEditor))]
+        [SliderMinMax(50f, 200f, 1f, 10f, true)]
+        [EbxFieldMeta(EbxFieldType.Float32)]
+        public float RenderRenderScale { get; set; } = 100f;
 
         [Category("Viewer")]
         [DisplayName("Show Grid")]
@@ -77,6 +84,7 @@ namespace MeshSetPlugin
             RenderShadowResolution = Config.Get<int>("RenderShadowRes", 2048);
             RenderHBAOEnabled = Config.Get<bool>("RenderHBAOEnabled", true);
             RenderTXAAEnabled = Config.Get<bool>("RenderTXAAEnabled", true);
+            RenderRenderScale = Config.Get<float>("RenderRenderScale", 100f);
 
             //DisplayAdapter = new CustomComboData<string, string>(adapters, adapters) {SelectedIndex = Config.Get<int>("Render", "AdapterIndex", 0)};
             //RenderShadowsEnabled = Config.Get<bool>("Render", "ShadowsEnabled", true);
@@ -97,6 +105,7 @@ namespace MeshSetPlugin
             Config.Add("RenderShadowRes", RenderShadowResolution);
             Config.Add("RenderHBAOEnabled", RenderHBAOEnabled);
             Config.Add("RenderTXAAEnabled", RenderTXAAEnabled);
+            Config.Add("RenderRenderScale", RenderRenderScale);
 
             Config.Save();
 
