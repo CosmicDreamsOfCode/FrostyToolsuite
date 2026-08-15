@@ -378,7 +378,12 @@ namespace FrostySdk.Managers
 
     public class ResAssetEntry : AssetEntry
     {
-        public override string Type => ((ResourceType)ResType).ToString();
+        // cache type names because reflection is slow
+        private static readonly Dictionary<uint, string> ResourceTypeNameMap = Enum.GetValues(typeof(ResourceType))
+        .Cast<ResourceType>()
+        .ToDictionary(rt => (uint)rt, rt => rt.ToString());
+
+        public override string Type => ResourceTypeNameMap.TryGetValue(ResType, out string name) ? name : ResType.ToString();
         public override string AssetType => "res";
 
         //#if FROSTY_DEVELOPER
