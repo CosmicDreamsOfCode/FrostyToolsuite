@@ -32,7 +32,7 @@ namespace FrostyEditor.Windows
             if (ProfilesLibrary.RequiresKey)
             {
                 byte[] keyData = null;
-                if (!File.Exists(ProfilesLibrary.CacheName + ".key"))
+                if (!File.Exists("initfs.key"))
                 {
                     // prompt for encryption key
                     KeyPromptWindow keyPromptWin = new KeyPromptWindow();
@@ -44,13 +44,13 @@ namespace FrostyEditor.Windows
                     }
 
                     keyData = keyPromptWin.EncryptionKey;
-                    using (NativeWriter writer = new NativeWriter(new FileStream(ProfilesLibrary.CacheName + ".key", FileMode.Create)))
+                    using (NativeWriter writer = new NativeWriter(new FileStream("initfs.key", FileMode.Create)))
                         writer.Write(keyData);
                 }
                 else
                 {
                     // otherwise just read the key from file
-                    keyData = NativeReader.ReadInStream(new FileStream(ProfilesLibrary.CacheName + ".key", FileMode.Open, FileAccess.Read));
+                    keyData = NativeReader.ReadInStream(new FileStream("initfs.key", FileMode.Open, FileAccess.Read));
                 }
 
                 // add primary encryption key
