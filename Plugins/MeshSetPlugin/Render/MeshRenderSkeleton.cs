@@ -91,6 +91,7 @@ namespace MeshSetPlugin.Render
         }
 
         public int BoneCount => proceduralBoneIndex;
+        public int TotalBoneCount => bones.Count;
         public IEnumerable<Bone> Bones => bones;
 
         private List<Bone> bones = new List<Bone>();

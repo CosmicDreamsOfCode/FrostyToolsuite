@@ -1,9 +1,11 @@
 ﻿using Frosty.Core.Screens;
 using Frosty.Core.Viewport;
+using FrostySdk;
 using FrostySdk.Managers;
 using MeshSetPlugin.Render;
 using MeshSetPlugin.Resources;
 using SharpDX;
+using SharpDX.Direct3D11;
 using System;
 using System.Collections.Generic;
 using DXUT = Frosty.Core.Viewport.DXUT;
@@ -35,6 +37,11 @@ namespace MeshSetPlugin.Screens
     {
         public int CurrentLOD { get; set; }
         public bool IsLoading { get; set; }
+        public bool ShowSkeleton { get; set; } = false;
+        public MeshRenderSkeleton VisualizeSkeleton { get; set; }
+
+        private SkeletonRenderShape skeletonJointSphere;
+        private SkeletonRenderShape skeletonBoneShape;
 
         private List<MeshAndPreviewContainer> renderMeshes = new List<MeshAndPreviewContainer>();
         private List<LightRenderInstance> renderLights = new List<LightRenderInstance>();
@@ -267,6 +274,9 @@ namespace MeshSetPlugin.Screens
             }
 
             base.CreateBuffers();
+
+            skeletonJointSphere = SkeletonRenderShape.CreateSphere(RenderCreateState, "SkeletonJoint", 1.0f, 8, new Vector4(0.1f, 0.6f, 0.6f, 1.0f));
+            skeletonBoneShape = SkeletonRenderShape.CreateCube(RenderCreateState, "SkeletonBone", 1.0f, 1.0f, 1.0f, new Vector4(0.3f, 0.8f, 0.8f, 1.0f));
         }
 
         public override void DisposeBuffers()
@@ -276,6 +286,9 @@ namespace MeshSetPlugin.Screens
                 mesh.Preview?.Dispose();
             }
             renderMeshes.Clear();
+
+            skeletonJointSphere?.Dispose();
+            skeletonBoneShape?.Dispose();
 
             base.DisposeBuffers();
         }
@@ -299,6 +312,15 @@ namespace MeshSetPlugin.Screens
                         anim.UpdateSkeleton(section.Skeleton);
                     }
                 }
+
+                if (renderMeshes.Count > 0)
+                {
+                    foreach (MeshRenderSection section in renderMeshes[0].Preview.GetLod(CurrentLOD).Sections)
+                    {
+                        VisualizeSkeleton = section.Skeleton;
+                        break;
+                    }
+                }
             }
         }
 
@@ -319,6 +341,73 @@ namespace MeshSetPlugin.Screens
             }
 
             base.Render();
+
+            if (!ShowSkeleton || VisualizeSkeleton == null || skeletonJointSphere == null || skeletonBoneShape == null)
+                return;
+
+            var jointInstances = new List<MeshRenderInstance>();
+            var boneInstances = new List<MeshRenderInstance>();
+            int total = VisualizeSkeleton.TotalBoneCount;
+
+            for (int i = 0; i < total; i++)
+            {
+                Vector3 pos = VisualizeSkeleton.GetBoneWorldMatrix(i).TranslationVector;
+                int parentId = VisualizeSkeleton.GetBone(i).ParentBoneId;
+
+                float sphereR = 0.015f;
+
+                if (parentId >= 0)
+                {
+                    Vector3 parentPos = VisualizeSkeleton.GetBoneWorldMatrix(parentId).TranslationVector;
+                    float len = (pos - parentPos).Length();
+
+                    if (len > 0.001f)
+                    {
+                        sphereR = Math.Max(0.008f, Math.Min(0.025f, len * 0.08f));
+                        float boneWidth = sphereR * 0.4f;
+                        AddSkeletonBone(boneInstances, parentPos, pos, boneWidth);
+                    }
+                }
+
+                jointInstances.Add(new MeshRenderInstance
+                {
+                    RenderMesh = skeletonJointSphere,
+                    Transform = Matrix.Scaling(sphereR) * Matrix.Translation(pos)
+                });
+            }
+
+            Viewport.Context.OutputMerger.SetRenderTargets(null, Viewport.ColorBufferRTV);
+            Viewport.Context.OutputMerger.DepthStencilState = D3DUtils.CreateDepthStencilState(false);
+            Viewport.Context.OutputMerger.BlendState = D3DUtils.CreateBlendState(D3DUtils.CreateBlendStateRenderTarget());
+            Viewport.Context.VertexShader.SetConstantBuffer(0, viewConstants.Buffer);
+            Viewport.Context.PixelShader.SetConstantBuffer(0, viewConstants.Buffer);
+            Viewport.Context.Rasterizer.State = D3DUtils.CreateRasterizerState(CullMode.Back, depthClip: false);
+
+            // Bones first so joints draw on top of them.
+            RenderMeshes(MeshRenderPath.Forward, boneInstances);
+            RenderMeshes(MeshRenderPath.Forward, jointInstances);
+        }
+
+        private void AddSkeletonBone(List<MeshRenderInstance> instances, Vector3 from, Vector3 to, float width)
+        {
+            Vector3 dir = to - from;
+            float len = dir.Length();
+            if (len < 0.0001f) return;
+            dir.Normalize();
+            Vector3 mid = (from + to) * 0.5f;
+            Vector3 up = Vector3.UnitY;
+            Vector3 axis = Vector3.Cross(up, dir);
+            float dot = Vector3.Dot(up, dir);
+            Quaternion rot = (axis.LengthSquared() > 0.0001f)
+                ? Quaternion.Normalize(new Quaternion(axis, 1.0f + dot))
+                : (dot < 0 ? new Quaternion(Vector3.UnitX, 0) : Quaternion.Identity);
+            instances.Add(new MeshRenderInstance
+            {
+                RenderMesh = skeletonBoneShape,
+                Transform = Matrix.Scaling(width, len, width)
+                           * Matrix.RotationQuaternion(rot)
+                           * Matrix.Translation(mid)
+            });
         }
 
         public override List<MeshRenderInstance> CollectMeshInstances()
@@ -395,6 +484,202 @@ namespace MeshSetPlugin.Screens
             }
 
             return aabb;
+        }
+    }
+
+    // Custom skeleton shape renderer
+    public class SkeletonRenderShape : MeshRenderBase, IDisposable
+    {
+        private struct ShapeVertex
+        {
+            public Vector3 Pos;
+            public Vector3 Normal;
+            public Vector2 TexCoord;
+
+            public ShapeVertex(Vector3 p, Vector3 n, Vector2 t)
+            {
+                Pos = p;
+                Normal = n;
+                TexCoord = t;
+            }
+        }
+
+        public override string DebugName => name;
+
+        private SharpDX.Direct3D11.Buffer vertexBuffer;
+        private SharpDX.Direct3D11.Buffer indexBuffer;
+        private SharpDX.Direct3D11.Buffer pixelParameters;
+        private List<ShaderResourceView> pixelTextures = new List<ShaderResourceView>();
+        private ShaderPermutation permutation;
+        private int indexCount = 0;
+        private string name;
+
+        public static SkeletonRenderShape CreateSphere(RenderCreateState state, string inName, float radius, int tessellation, Vector4 color)
+        {
+            List<ShapeVertex> vertices = new List<ShapeVertex>();
+            int verticalSegments = tessellation;
+            int horizontalSegments = tessellation * 2;
+
+            for (int i = 0; i <= verticalSegments; i++)
+            {
+                float v = 1 - (float)i / verticalSegments;
+                float latitude = (float)((i * Math.PI / verticalSegments) - (Math.PI / 2.0f));
+                float dy = 0.0f, dxz = 0.0f;
+
+                DirectXMathUtils.XMScalarSinCos(ref dy, ref dxz, latitude);
+
+                for (int j = 0; j <= horizontalSegments; j++)
+                {
+                    float u = (float)j / horizontalSegments;
+                    float longitude = (float)(j * (Math.PI * 2) / horizontalSegments);
+                    float dx = 0.0f, dz = 0.0f;
+
+                    DirectXMathUtils.XMScalarSinCos(ref dx, ref dz, longitude);
+
+                    dx *= dxz;
+                    dz *= dxz;
+
+                    Vector3 normal = new Vector3(dx, dy, dz);
+                    Vector3 pos = normal * radius;
+
+                    vertices.Add(new ShapeVertex(pos, Vector3.TransformCoordinate(normal, Matrix.Scaling(-1, 1, -1)), Vector2.Zero));
+                }
+            }
+
+            int stride = horizontalSegments + 1;
+            List<ushort> indices = new List<ushort>();
+
+            for (int i = 0; i < verticalSegments; i++)
+            {
+                for (int j = 0; j <= horizontalSegments; j++)
+                {
+                    int nextI = i + 1;
+                    int nextJ = (j + 1) % stride;
+
+                    indices.Add((ushort)(i * stride + nextJ));
+                    indices.Add((ushort)(i * stride + j));
+                    indices.Add((ushort)(nextI * stride + j));
+
+                    indices.Add((ushort)(nextI * stride + nextJ));
+                    indices.Add((ushort)(i * stride + nextJ));
+                    indices.Add((ushort)(nextI * stride + j));
+                }
+            }
+
+            return new SkeletonRenderShape(state, inName, vertices, indices, color);
+        }
+
+        public static SkeletonRenderShape CreateCube(RenderCreateState state, string inName, float width, float height, float depth, Vector4 color)
+        {
+            const int faceCount = 6;
+            Vector3[] faceNormals = new Vector3[faceCount]
+            {
+                new Vector3(0,0,1),
+                new Vector3(0,0,-1),
+                new Vector3(1,0,0),
+                new Vector3(-1,0,0),
+                new Vector3(0,1,0),
+                new Vector3(0,-1,0),
+            };
+            Vector2[] texCoords = new Vector2[4]
+            {
+                new Vector2(1, 0),
+                new Vector2(1, 1),
+                new Vector2(0, 1),
+                new Vector2(0, 0)
+            };
+
+            Vector3 tsize = new Vector3(width, height, depth);
+            tsize /= 2;
+
+            List<ShapeVertex> vertices = new List<ShapeVertex>();
+            List<ushort> indices = new List<ushort>();
+
+            for (int i = 0; i < faceCount; i++)
+            {
+                Vector3 normal = faceNormals[i];
+                Vector3 basis = (i >= 4) ? Vector3.UnitZ : Vector3.UnitY;
+                Vector3 side1 = Vector3.Cross(normal, basis);
+                Vector3 side2 = Vector3.Cross(normal, side1);
+
+                int vbase = vertices.Count;
+                indices.Add((ushort)(vbase + 2));
+                indices.Add((ushort)(vbase + 1));
+                indices.Add((ushort)(vbase + 0));
+
+                indices.Add((ushort)(vbase + 3));
+                indices.Add((ushort)(vbase + 2));
+                indices.Add((ushort)(vbase + 0));
+
+                vertices.Add(new ShapeVertex((normal - side1 - side2) * tsize, normal, texCoords[0]));
+                vertices.Add(new ShapeVertex((normal - side1 + side2) * tsize, normal, texCoords[1]));
+                vertices.Add(new ShapeVertex((normal + side1 + side2) * tsize, normal, texCoords[2]));
+                vertices.Add(new ShapeVertex((normal + side1 - side2) * tsize, normal, texCoords[3]));
+            }
+
+            return new SkeletonRenderShape(state, inName, vertices, indices, color);
+        }
+
+        private SkeletonRenderShape(RenderCreateState state, string inName, List<ShapeVertex> vertices, List<ushort> indices, Vector4 color)
+        {
+            using (DataStream stream = new DataStream(indices.Count * 2, false, true))
+            {
+                stream.WriteRange<ushort>(indices.ToArray());
+                stream.Position = 0;
+                indexBuffer = new SharpDX.Direct3D11.Buffer(state.Device, stream, indices.Count * 2, ResourceUsage.Default, BindFlags.IndexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, 2);
+            }
+            using (DataStream stream = new DataStream(vertices.Count * (4 * 8), false, true))
+            {
+                stream.WriteRange<ShapeVertex>(vertices.ToArray());
+                stream.Position = 0;
+                vertexBuffer = new SharpDX.Direct3D11.Buffer(state.Device, stream, vertices.Count * (4 * 8), ResourceUsage.Default, BindFlags.VertexBuffer, CpuAccessFlags.None, ResourceOptionFlags.None, (4 * 8));
+            }
+
+            GeometryDeclarationDesc geomDecl = GeometryDeclarationDesc.Create(new GeometryDeclarationDesc.Element[]
+            {
+                new GeometryDeclarationDesc.Element() { Usage = VertexElementUsage.Pos,       Format = VertexElementFormat.Float3 },
+                new GeometryDeclarationDesc.Element() { Usage = VertexElementUsage.Normal,    Format = VertexElementFormat.Float3 },
+                new GeometryDeclarationDesc.Element() { Usage = VertexElementUsage.TexCoord0, Format = VertexElementFormat.Float2 },
+            });
+
+            permutation = state.ShaderLibrary.GetUserShader("GroundPlane", geomDecl);
+            permutation.LoadShaders(state.Device);
+
+            // Override the shader's default (red/green) color parameters with calm teal. (Edit: that didn't work but i like the color)
+            List<ShaderParameter> customParams = new List<ShaderParameter>()
+            {
+                new ShaderParameter("Color1", ShaderParameterType.Float4, color.X, color.Y, color.Z, color.W),
+                new ShaderParameter("Color2", ShaderParameterType.Float4, color.X, color.Y, color.Z, color.W),
+                new ShaderParameter("SMR",    ShaderParameterType.Float4, 0.5f, 0.0f, 1.0f, 1.0f)
+            };
+            permutation.AssignParameters(state, customParams, new List<ShaderParameter>(), ref pixelParameters, ref pixelTextures);
+
+            indexCount = indices.Count;
+            name = inName;
+        }
+
+        public override void Render(DeviceContext context, MeshRenderPath renderPath)
+        {
+            if (renderPath == MeshRenderPath.Shadows || renderPath == MeshRenderPath.Selection)
+                return;
+
+            context.InputAssembler.SetIndexBuffer(indexBuffer, SharpDX.DXGI.Format.R16_UInt, 0);
+            context.InputAssembler.PrimitiveTopology = SharpDX.Direct3D.PrimitiveTopology.TriangleList;
+            context.InputAssembler.SetVertexBuffers(0, new VertexBufferBinding(vertexBuffer, 4 * 8, 0));
+
+            permutation.SetState(context, renderPath);
+            context.PixelShader.SetConstantBuffer(2, pixelParameters);
+            context.PixelShader.SetShaderResources(1, pixelTextures.ToArray());
+
+            context.DrawIndexed(indexCount, 0, 0);
+        }
+
+        public void Dispose()
+        {
+            pixelParameters?.Dispose();
+            indexBuffer?.Dispose();
+            vertexBuffer?.Dispose();
+            pixelTextures.Clear();
         }
     }
 }
