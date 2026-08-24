@@ -1078,7 +1078,7 @@ namespace FrostyCmd
 
         private void CreateBF6Profile()
         {
-            string key = "BF6";
+            string key = "bf6";
             using (NativeWriter writer = new NativeWriter(new MemoryStream()))
             {
                 writer.WriteObfuscatedString("Battlefield™ 6");
