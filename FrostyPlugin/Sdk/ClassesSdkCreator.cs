@@ -379,21 +379,32 @@ namespace Frosty.Core.Sdk
                 {
                     foreach (DbObject parameterObj in delegateObj.GetValue<DbObject>("parameters"))
                     {
+                        EbxFieldType paramType = (EbxFieldType)parameterObj.GetValue<int>("type");
+
+                        string baseTypeName = parameterObj.GetValue<string>("baseType");
+                        baseTypeName = GetFieldType(paramType, baseTypeName);
+
+                        if (paramType == EbxFieldType.Array)
+                        {
+                            EbxFieldType arrayType = (EbxFieldType)((parameterObj.GetValue<int>("arrayFlags") >> 4) & 0x1F);
+                            baseTypeName = "List<" + GetFieldType(arrayType, parameterObj.GetValue<string>("baseType")) + ">";
+                        }
+
                         switch (parameterObj.GetValue<byte>("parameterType"))
                         {
                             case 0:
-                                inputParams.Append(string.Format("{0} {1}, ", parameterObj.GetValue<string>("baseType"), parameterObj.GetValue<string>("name")));
+                                inputParams.Append(string.Format("{0} {1}, ", baseTypeName, parameterObj.GetValue<string>("name")));
                                 break;
                             case 1:
-                                returnType = parameterObj.GetValue<string>("baseType");
+                                returnType = baseTypeName;
                                 break;
                             case 2:
                                 // in ptr
-                                inputParams.Append(string.Format("{0} {1}, ", parameterObj.GetValue<string>("baseType"), parameterObj.GetValue<string>("name")));
+                                inputParams.Append(string.Format("{0} {1}, ", baseTypeName, parameterObj.GetValue<string>("name")));
                                 break;
                             case 3:
                                 // out ptr
-                                returnType = parameterObj.GetValue<string>("baseType");
+                                returnType = baseTypeName;
                                 break;
                         }
                     }
@@ -433,6 +444,7 @@ namespace Frosty.Core.Sdk
             StringBuilder sb = new StringBuilder();
             {
                 string parent = classObj.GetValue<string>("parent", "").Replace(':', '_').Replace('<', '_').Replace('>', '_');
+                int parentDataContainer = classObj.GetValue<int>("parentDataContainer");
                 EbxFieldType type = (EbxFieldType)classObj.GetValue<int>("type");
                 DbObject meta = classObj.GetValue<DbObject>("meta");
 
@@ -444,7 +456,7 @@ namespace Frosty.Core.Sdk
 
                 if (/*parent == "" &&*/ type == EbxFieldType.Pointer)
                 {
-                    if (parent == "DataContainer")
+                    if (parent == "DataContainer" || parentDataContainer != 0)
                     {
                         // add Id field to non asset types
                         sb.AppendLine("[" + typeof(IsTransientAttribute).Name + "]");
@@ -520,7 +532,7 @@ namespace Frosty.Core.Sdk
                     }
                 }
 
-                if (parent == "DataContainer" && !addedGetId)
+                if ((parent == "DataContainer" || parentDataContainer != 0) && !addedGetId)
                 {
                     Type tmpType = typeof(EbxClassMetaAttribute);
                     string namespaceName = tmpType.GetProperties()[4].Name;
@@ -897,6 +909,7 @@ namespace Frosty.Core.Sdk
                 case EbxFieldType.Struct: return baseType;
                 case EbxFieldType.Delegate: return baseType;
                 case EbxFieldType.Function: return baseType;
+                case EbxFieldType.Interface: return baseType;
             }
 
             return "";
@@ -1158,6 +1171,7 @@ namespace Frosty.Core.Sdk
             public ushort Padding1;
             public long TypeOffset;
             public int Index;
+            public Guid TypeGuid;
 
             public virtual void Read(MemoryReader reader)
             {
@@ -1261,10 +1275,12 @@ namespace Frosty.Core.Sdk
                     }
                 }
             }
-            else if (ProfilesLibrary.IsLoaded(ProfileVersion.Battlefield2042))
+            else if (ProfilesLibrary.IsLoaded(ProfileVersion.Battlefield2042, ProfileVersion.Battlefield6))
             {
-                // read in strings which were manually created (since Battlefield2042 has stripped all strings)
-                using (NativeReader reader = new NativeReader(Assembly.GetExecutingAssembly().GetManifestResourceStream("Frosty.Core.Sdk.Bf2042-Strings.txt")))
+                // read in strings which were manually created (since Battlefield2042 and Battlefield6 have stripped all strings)
+                string namesResource = ProfilesLibrary.IsLoaded(ProfileVersion.Battlefield2042) ? "Frosty.Core.Sdk.Bf2042-Strings.txt" : "Frosty.Core.Sdk.Bf6-Strings.txt";
+
+                using (NativeReader reader = new NativeReader(Assembly.GetExecutingAssembly().GetManifestResourceStream(namesResource)))
                 {
                     int count = int.Parse(reader.ReadLine());
                     for (int i = 0; i < count; i++)
@@ -1632,11 +1648,14 @@ namespace Frosty.Core.Sdk
             if (parent != "")
             {
                 Tuple<EbxClass, DbObject> p = m_values.Find((Tuple<EbxClass, DbObject> a) => { return a.Item1.Name == parent; });
-                offset = ProcessClass(p.Item1, p.Item2, m_fieldMappings[p.Item1.Name], outList, ref offset, ref fieldIndex);
-
-                if (p.Item1.Name == "DataContainer" && pclass.Name != "Asset")
+                if (p != null) //@HACK fix BF6
                 {
-                    pobj.SetValue("isData", true);
+                    offset = ProcessClass(p.Item1, p.Item2, m_fieldMappings[p.Item1.Name], outList, ref offset, ref fieldIndex);
+
+                    if (p.Item1.Name == "DataContainer" && pclass.Name != "Asset")
+                    {
+                        pobj.SetValue("isData", true);
+                    }
                 }
             }
 
@@ -1729,7 +1748,7 @@ namespace Frosty.Core.Sdk
                     fieldObj.AddValue("flags", (int)field.Type);
                     if (ProfilesLibrary.IsLoaded(ProfileVersion.Anthem, ProfileVersion.PlantsVsZombiesBattleforNeighborville,
                         ProfileVersion.Fifa20, ProfileVersion.Fifa21, ProfileVersion.Madden22,
-                        ProfileVersion.Fifa22, ProfileVersion.Battlefield2042, ProfileVersion.Madden23, ProfileVersion.NeedForSpeedUnbound, ProfileVersion.DeadSpace))
+                        ProfileVersion.Fifa22, ProfileVersion.Battlefield2042, ProfileVersion.Madden23, ProfileVersion.NeedForSpeedUnbound, ProfileVersion.DeadSpace, ProfileVersion.Battlefield6))
                     {
                         fieldObj.AddValue("offset", (int)field.DataOffset);
                         fieldObj.AddValue("nameHash", field.NameHash);
@@ -1789,7 +1808,14 @@ namespace Frosty.Core.Sdk
 
                         if (idx != -1)
                         {
-                            fieldObj.AddValue("baseType", m_values[idx].Item1.Name);
+                            if (m_values[idx].Item1.DebugType == EbxFieldType.Delegate || m_values[idx].Item1.DebugType == EbxFieldType.Function)
+                            {
+                                fieldObj.AddValue("baseType", string.Format("Reflection.{0}", m_values[idx].Item1.Name));
+                            }
+                            else
+                            {
+                                fieldObj.AddValue("baseType", m_values[idx].Item1.Name);
+                            }
                             fieldObj.AddValue("arrayFlags", (int)m_values[idx].Item1.Type);
                         }
                         else
@@ -1934,7 +1960,7 @@ namespace Frosty.Core.Sdk
             // Bf2042
             else if (ProfilesLibrary.IsLoaded(ProfileVersion.Fifa21, ProfileVersion.Madden22,
                 ProfileVersion.Fifa22, ProfileVersion.Battlefield2042,
-                ProfileVersion.Madden23, ProfileVersion.NeedForSpeedUnbound, ProfileVersion.DeadSpace))
+                ProfileVersion.Madden23, ProfileVersion.NeedForSpeedUnbound, ProfileVersion.DeadSpace, ProfileVersion.Battlefield6))
             {
                 Namespace = "Frosty.Core.Sdk.Bf2042.";
             }
@@ -1954,6 +1980,19 @@ namespace Frosty.Core.Sdk
             m_alreadyProcessedClasses.Clear();
             m_processedClasses.Clear();
             m_fieldMappings?.Clear();
+
+            // BF6: For some reason TypeInfoOffset is not at the start of the linked list
+            if (ProfilesLibrary.IsLoaded(ProfileVersion.Battlefield6))
+            {
+                long next = origOffset;
+
+                while (next != 0)
+                {
+                    origOffset = next;
+                    reader.Position = next + 24;
+                    next = reader.ReadLong();
+                }
+            }
 
             NextOffset = origOffset;
             int count = 0;
@@ -2056,6 +2095,7 @@ namespace Frosty.Core.Sdk
             DbObject classObj = new DbObject();
             classObj.AddValue("name", classInfo.TypeInfo.Name);
             classObj.AddValue("parent", (parent != null) ? parent.TypeInfo.Name : "");
+            classObj.AddValue("parentDataContainer", (parent != null) ? parent.IsDataContainer : 0);
             classObj.AddValue("type", classInfo.TypeInfo.Type);
             classObj.AddValue("flags", (int)classInfo.TypeInfo.Flags);
             classObj.AddValue("alignment", alignment);
@@ -2091,7 +2131,7 @@ namespace Frosty.Core.Sdk
                     fieldObj.AddValue("flags", (int)fieldType.TypeInfo.Flags);
                     fieldObj.AddValue("offset", (int)field.Offset);
                     fieldObj.AddValue("index", (int)field.Index);
-                    if (fieldType.TypeInfo.Type == 3 || fieldType.TypeInfo.Type == 2 || fieldType.TypeInfo.Type == 8)
+                    if (fieldType.TypeInfo.Type == 3 || fieldType.TypeInfo.Type == 2 || fieldType.TypeInfo.Type == 8 || fieldType.TypeInfo.Type == 0x18 || fieldType.TypeInfo.Type == 0x1C)
                     {
                         fieldObj.AddValue("baseType", fieldType.TypeInfo.Name);
                     }
@@ -2154,7 +2194,16 @@ namespace Frosty.Core.Sdk
                 parameterObj.AddValue("name", parameter.Name);
                 parameterObj.AddValue("type", parameterType.TypeInfo.Type);
                 parameterObj.AddValue("flags", (int)parameterType.TypeInfo.Flags);
-                parameterObj.AddValue("baseType", parameterType.TypeInfo.Name);
+                if (parameterType.TypeInfo.Type == 4)
+                {
+                    ClassInfo paramArrayType = m_offsetClassInfoMappings[parameterType.ParentClass];
+                    parameterObj.AddValue("baseType", paramArrayType.TypeInfo.Name);
+                    parameterObj.AddValue("arrayFlags", (int)paramArrayType.TypeInfo.Flags);
+                }
+                else
+                {
+                    parameterObj.AddValue("baseType", parameterType.TypeInfo.Name);
+                }
                 parameterObj.AddValue("defaultValue", parameter.DefaultValue);
                 parameterObj.AddValue("parameterType", parameter.Type);
 

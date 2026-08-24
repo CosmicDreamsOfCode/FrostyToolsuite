@@ -14,7 +14,7 @@ namespace Frosty.Core.Sdk.Bf2042
 
     public class TypeInfo : ClassesSdkCreator.TypeInfo
     {
-        private bool m_hasNames = !ProfilesLibrary.IsLoaded(ProfileVersion.Battlefield2042);
+        private bool m_hasNames = !ProfilesLibrary.IsLoaded(ProfileVersion.Battlefield2042, ProfileVersion.Battlefield6);
 
         private uint m_nameHash;
         private uint m_signature;
@@ -72,6 +72,10 @@ namespace Frosty.Core.Sdk.Bf2042
                     else if (Type == 8)
                     {
                         Name = "Enum_" + m_nameHash.ToString("x8");
+                    }
+                    else if (Type == 0x1b)
+                    {
+                        Name = "Interface_" + m_nameHash.ToString("x8");
                     }
                     else if (Type == 0x1c)
                     {
@@ -164,28 +168,56 @@ namespace Frosty.Core.Sdk.Bf2042
 
             long typeInfoOffset = reader.ReadLong();
 
-            long prevOffset = reader.ReadLong();
-
-            ClassesSdkCreator.NextOffset = reader.ReadLong();
-
-            Id = reader.ReadUShort();
-            IsDataContainer = reader.ReadUShort();
-            Padding = new byte[] { reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte() };
-            ParentClass = reader.ReadLong();
-
-            reader.Position = typeInfoOffset;
-
-            TypeInfo = new TypeInfo();
-            TypeInfo.Read(reader);
-
-            if (TypeInfo.ParentClass != 0)
+            if (ProfilesLibrary.IsLoaded(ProfileVersion.Battlefield6))
             {
-                ParentClass = TypeInfo.ParentClass;
+                Padding = new byte[] { reader.ReadByte(), reader.ReadByte() };
+                IsDataContainer = reader.ReadUShort();
+                Id = (ushort)reader.ReadUInt();
+                ClassesSdkCreator.NextOffset = reader.ReadLong();
+                long prevOffset = reader.ReadLong();
+
+                ParentClass = reader.ReadLong();
+
+                reader.Position = typeInfoOffset;
+
+                TypeInfo = new TypeInfo();
+                TypeInfo.Read(reader);
+
+                if (TypeInfo.ParentClass != 0)
+                {
+                    ParentClass = TypeInfo.ParentClass;
+                }
+
+                if (ParentClass == thisOffset)
+                {
+                    ParentClass = 0;
+                }
             }
-
-            if (ParentClass == thisOffset)
+            else
             {
-                ParentClass = 0;
+                long prevOffset = reader.ReadLong();
+
+                ClassesSdkCreator.NextOffset = reader.ReadLong();
+
+                Id = reader.ReadUShort();
+                IsDataContainer = reader.ReadUShort();
+                Padding = new byte[] { reader.ReadByte(), reader.ReadByte(), reader.ReadByte(), reader.ReadByte() };
+                ParentClass = reader.ReadLong();
+
+                reader.Position = typeInfoOffset;
+
+                TypeInfo = new TypeInfo();
+                TypeInfo.Read(reader);
+
+                if (TypeInfo.ParentClass != 0)
+                {
+                    ParentClass = TypeInfo.ParentClass;
+                }
+
+                if (ParentClass == thisOffset)
+                {
+                    ParentClass = 0;
+                }
             }
         }
     }
@@ -193,7 +225,7 @@ namespace Frosty.Core.Sdk.Bf2042
     public class FieldInfo : ClassesSdkCreator.FieldInfo
     {
 
-        private bool m_hasNames = !ProfilesLibrary.IsLoaded(ProfileVersion.Anthem, ProfileVersion.Battlefield2042);
+        private bool m_hasNames = !ProfilesLibrary.IsLoaded(ProfileVersion.Anthem, ProfileVersion.Battlefield2042, ProfileVersion.Battlefield6);
         private uint m_nameHash;
         public void Read(MemoryReader reader, uint classHash)
         {
@@ -221,9 +253,26 @@ namespace Frosty.Core.Sdk.Bf2042
                     Name = Strings.stringHash[m_nameHash];
                 }
             }
-            Flags = reader.ReadUShort();
-            Offset = reader.ReadUShort();
-            TypeOffset = reader.ReadLong();
+            if (ProfilesLibrary.IsLoaded(ProfileVersion.Battlefield6))
+            {
+                Flags = reader.ReadUShort();
+                Padding1 = reader.ReadUShort();
+                Offset = reader.ReadUInt();
+                Padding1 = (ushort)reader.ReadUInt();
+                TypeOffset = reader.ReadLong();
+            }
+            else
+            {
+                Flags = reader.ReadUShort();
+                Offset = reader.ReadUShort();
+                TypeOffset = reader.ReadLong();
+            }
+
+            long current = reader.Position;
+            reader.Position = TypeOffset + 8;
+            TypeGuid = reader.ReadGuid();
+
+            reader.Position = current;
         }
 
         public override void Modify(DbObject fieldObj)

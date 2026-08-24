@@ -1076,6 +1076,34 @@ namespace FrostyCmd
             }
         }
 
+        private void CreateBF6Profile()
+        {
+            string key = "BF6";
+            using (NativeWriter writer = new NativeWriter(new MemoryStream()))
+            {
+                writer.WriteObfuscatedString("Battlefield™ 6");
+                writer.Write((int)ProfileVersion.Battlefield6);
+                writer.WriteObfuscatedString("bf6");
+                writer.WriteObfuscatedString(typeof(NullDeobfuscator).Name);
+                writer.WriteObfuscatedString(AssetManager.GetLoaderName("CasAssetLoader"));
+                writer.Write(CreateSources("Patch;false", "Update;true", "Data;false"));
+                writer.WriteObfuscatedString("BF6SDK");
+                writer.Write(CreateBanner("bf6"));
+                writer.WriteObfuscatedString("Common/Shaders/Textures/Debug/Debug_D");
+                writer.WriteObfuscatedString("Common/Shaders/Textures/Debug/Debug_N");
+                writer.WriteObfuscatedString("Common/Shaders/Textures/Debug/Debug_R");
+                writer.WriteObfuscatedString("Common/Shaders/Textures/Debug/Debug_SRM");
+                writer.Write(0); // shared bundle names
+                writer.Write(0); // ignored res types
+
+                // Flags (MustAddChunks, EbxVersion, RequiresKey, ReadOnly, EAAC)
+                ProfileFlags pf = new ProfileFlags(0, 6, 1, 1, 1);
+                pf.Write(writer);
+
+                blobs.Add(key, writer.ToByteArray());
+            }
+        }
+
         private void CreateMadden23Profile()
         {
             string key = "Madden23";
@@ -1231,6 +1259,7 @@ namespace FrostyCmd
             CreateMadden23Profile();
             CreateFifa23Profile();
             CreateDeadSpaceProfile();
+            CreateBF6Profile();
 
 #endif
 

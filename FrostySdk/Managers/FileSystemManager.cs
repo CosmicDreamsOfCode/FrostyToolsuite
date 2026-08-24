@@ -65,8 +65,22 @@ namespace FrostySdk
     {
         public Guid Id;
         public string Name;
+        public string LayoutName;
         public bool AlwaysInstalled;
         public Dictionary<string, Tuple<bool, bool>> SuperBundles = new Dictionary<string, Tuple<bool, bool>>();
+
+        public uint HashedLayoutName {
+            get {
+                // Found in BF6 Beta
+                uint hash = 5381;
+                foreach (char c in LayoutName)
+                {
+                    hash = c ^ (33 * hash);
+                }
+
+                return hash;
+            }
+        }
     }
 
     public class FileSystemManager
@@ -166,7 +180,7 @@ namespace FrostySdk
             int endCount = paths.Count;
 
             if (filename.StartsWith("native_data/") && paths.Count > 1)
-                startCount = 1;
+                startCount = 0; //@HACK fix BF6
             else if (filename.StartsWith("native_patch/"))
                 endCount = 1;
 
@@ -280,6 +294,15 @@ namespace FrostySdk
             CatalogInfo ci = catalogs[catalog];
             return ((patch) ? "native_patch/" : "native_data/") + ci.Name + "/cas_" + cas.ToString("D2") + ".cas";
         }
+        public string GetFilePathByHash(uint catalogHash, int cas, bool patch)
+        {
+            return GetFilePath(GetCatalogIndexByHash(catalogHash), cas, patch);
+        }
+
+        public int GetCatalogIndexByHash(uint catalogHash)
+        {
+            return catalogs.FindIndex(c => c.HashedLayoutName == catalogHash);
+        }
 
         private void LoadInitfs(byte[] key, bool patched = true)
         {
@@ -296,7 +319,7 @@ namespace FrostySdk
                     ProfileVersion.PlantsVsZombiesBattleforNeighborville, ProfileVersion.NeedForSpeedHeat,
                     ProfileVersion.Fifa21, ProfileVersion.Madden22,
                     ProfileVersion.Fifa22, ProfileVersion.Battlefield2042,
-                    ProfileVersion.Madden23, ProfileVersion.NeedForSpeedUnbound, ProfileVersion.DeadSpace))
+                    ProfileVersion.Madden23, ProfileVersion.NeedForSpeedUnbound, ProfileVersion.DeadSpace, ProfileVersion.Battlefield6))
                 {
                     byte[] buffer = initfs.GetValue<byte[]>("encrypted");
                     if (buffer != null)
@@ -554,7 +577,7 @@ namespace FrostySdk
                             (!ProfilesLibrary.IsLoaded(ProfileVersion.Anthem, ProfileVersion.PlantsVsZombiesBattleforNeighborville,
                             ProfileVersion.NeedForSpeedHeat, ProfileVersion.Fifa21,
                             ProfileVersion.Madden22, ProfileVersion.Fifa22,
-                            ProfileVersion.Battlefield2042, ProfileVersion.Madden23, ProfileVersion.NeedForSpeedUnbound, ProfileVersion.DeadSpace)))
+                            ProfileVersion.Battlefield2042, ProfileVersion.Madden23, ProfileVersion.NeedForSpeedUnbound, ProfileVersion.DeadSpace, ProfileVersion.Battlefield6)))
                         {
                             // BFV needs even non existent catalogs to be in the list for indexing to work
                             if (!ProfilesLibrary.IsLoaded(ProfileVersion.Battlefield5, ProfileVersion.StarWarsSquadrons))
@@ -574,6 +597,7 @@ namespace FrostySdk
                         {
                             Id = installChunk.GetValue<Guid>("id"),
                             Name = path,
+                            LayoutName = installChunk.GetValue<string>("name"),
                             AlwaysInstalled = alwaysInstalled
                         };
 
@@ -581,7 +605,8 @@ namespace FrostySdk
                             info.SuperBundles.Add(superBundle.ToLower(), new Tuple<bool, bool>(true, false));
                     }
 
-                    if (installChunk.HasValue("persistentIndex"))
+                    // BF6 uses a hashmap instead of an array
+                    if (installChunk.HasValue("persistentIndex") && !ProfilesLibrary.IsLoaded(ProfileVersion.Battlefield6))
                     {
                         if (catalogs.Count == 0)
                         {
