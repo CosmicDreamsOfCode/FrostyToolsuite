@@ -134,6 +134,14 @@ namespace FrostySdk.Managers.Entries
                     {
                         return $"win32/ov/{base.Name}";
                     }
+                    else if (name.StartsWith("dogtag_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return $"win32/dogtag/{base.Name}";
+                    }
+                    else if (name.StartsWith("bf_sp_", StringComparison.OrdinalIgnoreCase) || name.StartsWith("bf_gla_sp_", StringComparison.OrdinalIgnoreCase))
+                    {
+                        return $"win32/toplevel/{base.Name}";
+                    }
                 }
 
                 return base.Name;
