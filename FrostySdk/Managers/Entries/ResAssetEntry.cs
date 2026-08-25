@@ -1,3 +1,5 @@
+using System;
+
 namespace FrostySdk.Managers.Entries
 {
     public enum ResourceType : uint
@@ -92,19 +94,19 @@ namespace FrostySdk.Managers.Entries
                 if (ProfilesLibrary.IsLoaded(ProfileVersion.Battlefield2042, ProfileVersion.Battlefield6) &! base.Name.StartsWith("win32/"))
                 {
                     string name = base.Name;
-                    if (name.StartsWith("cd_", System.StringComparison.OrdinalIgnoreCase))
+                    if (name.StartsWith("cd_", StringComparison.OrdinalIgnoreCase))
                     {
                         return $"win32/cd/{base.Name}";
                     }
-                    else if (name.StartsWith("dpf_", System.StringComparison.OrdinalIgnoreCase))
+                    else if (name.StartsWith("dpf_", StringComparison.OrdinalIgnoreCase))
                     {
                         return $"win32/dpf/{base.Name}";
                     }
-                    else if (name.StartsWith("md_", System.StringComparison.OrdinalIgnoreCase) || name.StartsWith("assaultrifle_md", System.StringComparison.OrdinalIgnoreCase))
+                    else if (name.StartsWith("md_", StringComparison.OrdinalIgnoreCase) || name.StartsWith("assaultrifle_md", StringComparison.OrdinalIgnoreCase))
                     {
                         return $"win32/md/{base.Name}";
                     }
-                    else if (name.StartsWith("pf_", System.StringComparison.OrdinalIgnoreCase))
+                    else if (name.StartsWith("pf_", StringComparison.OrdinalIgnoreCase))
                     {
                         return $"win32/pf/{base.Name}";
                     }
@@ -112,23 +114,23 @@ namespace FrostySdk.Managers.Entries
                     {
                         return $"win32/edgemodel/{base.Name}";
                     }
-                    else if (name.StartsWith("cha_", System.StringComparison.OrdinalIgnoreCase))
+                    else if (name.StartsWith("cha_", StringComparison.OrdinalIgnoreCase))
                     {
                         return $"win32/cha/{base.Name}";
                     }
-                    else if (name.StartsWith("dsp_", System.StringComparison.OrdinalIgnoreCase))
+                    else if (name.StartsWith("dsp_", StringComparison.OrdinalIgnoreCase))
                     {
                         return $"win32/dsp/{base.Name}";
                     }
-                    else if (name.StartsWith("com_", System.StringComparison.OrdinalIgnoreCase))
+                    else if (name.StartsWith("com_", StringComparison.OrdinalIgnoreCase))
                     {
                         return $"win32/com/{base.Name}";
                     }
-                    else if (name.StartsWith("gad_", System.StringComparison.OrdinalIgnoreCase) || name.StartsWith("ob_", System.StringComparison.OrdinalIgnoreCase))
+                    else if (name.StartsWith("gad_", StringComparison.OrdinalIgnoreCase) || name.StartsWith("ob_", StringComparison.OrdinalIgnoreCase))
                     {
                         return $"win32/ob/{base.Name}";
                     }
-                    else if (name.StartsWith("ov_", System.StringComparison.OrdinalIgnoreCase))
+                    else if (name.StartsWith("ov_", StringComparison.OrdinalIgnoreCase))
                     {
                         return $"win32/ov/{base.Name}";
                     }
