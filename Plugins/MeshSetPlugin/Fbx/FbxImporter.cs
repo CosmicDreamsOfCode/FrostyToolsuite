@@ -1211,6 +1211,20 @@ namespace MeshSetPlugin.Fbx
                                 case VertexElementUsage.TangentSpace:
                                 case VertexElementUsage.TexCoord0:
                                 case VertexElementUsage.RadiosityTexCoord:
+                                    {
+                                        FbxLayerElementUV layerUV = fmesh.GetElementUV("RadiosityTexCoord");
+                                        if (layerUV != null)
+                                        {
+                                            int mappingIndex = (layerUV.MappingMode == EMappingMode.eByControlPoint) ? vertexIndex : (i * 3) + j;
+                                            int actualIndex = mappingIndex;
+                                            if (layerUV.ReferenceMode != EReferenceMode.eDirect)
+                                                layerUV.IndexArray.GetAt(mappingIndex, out actualIndex);
+
+                                            layerUV.DirectArray.GetAt(actualIndex, out Vector2 uv);
+                                            vertex.SetValue("RadiosityTexCoord", uv);
+                                        }
+                                    }
+                                    break;
                                 case VertexElementUsage.DisplacementMapTexCoord:
                                 case VertexElementUsage.BoneIndices2:
                                 case VertexElementUsage.BoneWeights2:
@@ -1552,8 +1566,17 @@ namespace MeshSetPlugin.Fbx
 
                                         case VertexElementUsage.RadiosityTexCoord:
                                             {
-                                                chunkWriter.Write(HalfUtils.Pack(0.0f));
-                                                chunkWriter.Write(HalfUtils.Pack(0.0f));
+                                                if (vertex.HasValue("RadiosityTexCoord"))
+                                                {
+                                                    Vector2 uv = vertex.GetValue<Vector2>("RadiosityTexCoord");
+                                                    chunkWriter.Write(HalfUtils.Pack(uv.X));
+                                                    chunkWriter.Write(HalfUtils.Pack(1.0f - uv.Y));
+                                                }
+                                                else
+                                                {
+                                                    chunkWriter.Write((ushort)0);
+                                                    chunkWriter.Write((ushort)0);
+                                                }
                                             }
                                             break;
 
