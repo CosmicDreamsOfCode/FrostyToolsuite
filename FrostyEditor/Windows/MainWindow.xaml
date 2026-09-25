@@ -579,14 +579,14 @@
                                                            FontWeight="Bold" />
                                                 <StackPanel Orientation="Horizontal"
                                                             Margin="8,8,0,0">
-                                                    <TextBlock Text="Frosty Website:"
+                                                    <TextBlock Text="Frosty Source Code:"
                                                                Foreground="{StaticResource FontColor}"
                                                                Margin="0,0,20,0" />
                                                     <TextBlock>
-                                                    <Hyperlink NavigateUri="http://www.frostytoolsuite.com"
+                                                    <Hyperlink NavigateUri="https://github.com/CadeEvs/FrostyToolsuite"
                                                                Foreground="{StaticResource FontColor}"
                                                                RequestNavigate="hyperlink_RequestNavigate">
-                                                        http://www.frostytoolsuite.com
+                                                        https://github.com/CadeEvs/FrostyToolsuite
                                                     </Hyperlink>
                                                     </TextBlock>
                                                 </StackPanel>
@@ -605,14 +605,14 @@
                                                 </StackPanel>
                                                 <StackPanel Orientation="Horizontal"
                                                             Margin="8,8,0,0">
-                                                    <TextBlock Text="Frosty Source Code:"
+                                                    <TextBlock Text="Fork Source Code:"
                                                                Foreground="{StaticResource FontColor}"
                                                                Margin="0,0,20,0" />
                                                     <TextBlock>
-                                                    <Hyperlink NavigateUri="https://github.com/CadeEvs/FrostyToolsuite"
+                                                    <Hyperlink NavigateUri="https://github.com/CosmicDreamsOfCode/FrostyToolsuite"
                                                                Foreground="{StaticResource FontColor}"
                                                                RequestNavigate="hyperlink_RequestNavigate">
-                                                        https://github.com/CadeEvs/FrostyToolsuite
+                                                        https://github.com/CosmicDreamsOfCode/FrostyToolsuite
                                                     </Hyperlink>
                                                     </TextBlock>
                                                 </StackPanel>

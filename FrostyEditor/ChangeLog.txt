@@ -1,4 +1,30 @@
-﻿v1.0.6.3
+﻿v1.0.6.4 Contiued
+--------
+- Added IES Profile exporting
+- Added SubMaterialIndex and RadiosityTexCoord import/export
+- Added a builder for editor core shaders
+- Added a button to reimport the last imported mesh
+- Added a option to adjust the internal resolution of the mesh viewport
+- Added a root instance guid cache search utility
+- Added exporting texture arrays as a single image strip
+- Added mesh bounding box updating on import
+- Added mesh skeleton rendering support (@Virjoinga)
+- Added support for rig offsets used in NFS Heat
+- Added and changed a few mesh import exceptions
+- Backend organisation of the MeshSetPlugin
+- Caching of asset type icons (@BreakfastBrainz2)
+- Correct gamma on DiffuseColor and SpecularColor debug views
+- Custom viewport shader fixes and improvements
+- Encryption key file is no longer profile specific
+- Export XMLs for each lod when generating custom shader templates
+- Fixed rare issue with the EbxWriter performance improvements
+- Fixed some issues with mesh duping in SWBF2
+- Improved fallback shader for SWBF2
+- MeshVariationDatabase cache files now use the same name as other caches
+- Refactored exporting additional meshes to improve stability
+- Renamed BaseColor debug view to DiffuseColor
+
+v1.0.6.3
 --------
 - Improved performance of the EbxWriter
 - Improved import for collections (#317)
