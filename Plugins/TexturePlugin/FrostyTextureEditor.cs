@@ -158,7 +158,8 @@ namespace TexturePlugin
         {
             return new List<ToolbarItem>()
             {
-                new ToolbarItem("Export", "Export Texture", "Images/Export.png", new RelayCommand((object state) => { ExportButton_Click(this, new RoutedEventArgs()); })),
+                new ToolbarItem("Export", "Export Texture", "Images/Export.png", new RelayCommand((object state) => { ExportButton_Click(this, new RoutedEventArgs(), false); })),
+                new ToolbarItem("Export as Strip", "Export Texture", "Images/Export.png", new RelayCommand((object state) => { ExportButton_Click(this, new RoutedEventArgs(), true); })),
                 new ToolbarItem("Import", "Import Texture", "Images/Import.png", new RelayCommand((object state) => { ImportButton_Click(this, new RoutedEventArgs()); })),
             };
         }
@@ -589,7 +590,7 @@ namespace TexturePlugin
             }
         }
 
-        private void ExportButton_Click(object sender, RoutedEventArgs e)
+        private void ExportButton_Click(object sender, RoutedEventArgs e, bool exportAsStrip)
         {
             ImageFormat format = ImageFormat.PNG;
             bool bResult = false;
@@ -658,7 +659,7 @@ namespace TexturePlugin
                 string[] filters = new string[] { "*.png", "*.tga", "*.hdr", "*.dds" };
 
                 TextureExporter exporter = new TextureExporter();
-                exporter.Export(textureAsset, sfd.FileName, filters[sfd.FilterIndex - 1]);
+                exporter.Export(textureAsset, sfd.FileName, filters[sfd.FilterIndex - 1], exportAsStrip);
             });
             logger.Log("Texture successfully exported to " + sfd.FileName);
         }
