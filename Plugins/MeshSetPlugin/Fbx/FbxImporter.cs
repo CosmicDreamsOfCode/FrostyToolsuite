@@ -308,7 +308,7 @@ namespace MeshSetPlugin.Fbx
                 {
                     if (meshLod.IsSectionInCategory(meshSection, MeshSubsetCategory.MeshSubsetCategory_ZOnly))
                         depthSections.Add(meshSection);
-                    else
+                    if (meshLod.IsSectionInCategory(meshSection, MeshSubsetCategory.MeshSubsetCategory_Shadow))
                         shadowSections.Add(meshSection);
                 }
             }
