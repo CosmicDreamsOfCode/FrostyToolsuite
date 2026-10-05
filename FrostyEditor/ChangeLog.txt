@@ -12,6 +12,7 @@
 - Added support for rig offsets used in NFS Heat
 - Added and changed a few mesh import exceptions
 - Backend organisation of the MeshSetPlugin
+- Backend organisation of the TexturePlugin
 - Caching of asset type icons (@BreakfastBrainz2)
 - Correct gamma on DiffuseColor and SpecularColor debug views
 - Custom viewport shader fixes and improvements
@@ -19,6 +20,7 @@
 - Export XMLs for each lod when generating custom shader templates
 - Fixed rare issue with the EbxWriter performance improvements
 - Fixed some issues with mesh duping in SWBF2
+- Fixed not being able to import DDS cubemaps
 - Improved fallback shader for SWBF2
 - MeshVariationDatabase cache files now use the same name as other caches
 - Refactored exporting additional meshes to improve stability

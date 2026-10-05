@@ -10,62 +10,6 @@ using D3D11 = SharpDX.Direct3D11;
 
 namespace TexturePlugin
 {
-    [EbxClassMeta(EbxFieldType.Struct)]
-    public class FrostyTextureSettingsItem
-    {
-        [IsReadOnly]
-        public CString Filename { get; set; }
-    }
-    public enum FrostyTextureCubeFace
-    {
-        PositiveX,
-        NegativeX,
-        PositiveY,
-        NegativeY,
-        PositiveZ,
-        NegativeZ,
-    }
-    [IsExpandedByDefault]
-    [DisplayName("Texture Cube Face")]
-    [EbxClassMeta(EbxFieldType.Struct)]
-    public class FrostyTextureCubeItem : FrostyTextureSettingsItem
-    {
-        public FrostyTextureCubeFace Face { get; set; }
-        public override string ToString()
-        {
-            string faceString = "";
-            switch (Face)
-            {
-                case FrostyTextureCubeFace.PositiveX: faceString = "X+"; break;
-                case FrostyTextureCubeFace.NegativeX: faceString = "X-"; break;
-                case FrostyTextureCubeFace.PositiveY: faceString = "Y+"; break;
-                case FrostyTextureCubeFace.NegativeY: faceString = "Y-"; break;
-                case FrostyTextureCubeFace.PositiveZ: faceString = "Z+"; break;
-                case FrostyTextureCubeFace.NegativeZ: faceString = "Z-"; break;
-            }
-            return "Cube Face (" + faceString + "): " + Filename;
-        }
-    }
-    [IsExpandedByDefault]
-    [DisplayName("Texture Array Slice")]
-    [EbxClassMeta(EbxFieldType.Struct)]
-    public class FrostyTextureArrayItem : FrostyTextureSettingsItem
-    {
-        public int Slice { get; set; }
-        public override string ToString()
-        {
-            return "Array Slice (" + Slice + "): " + Filename;
-        }
-    }
-
-    public class FrostyTextureImportSettings
-    {
-        [FixedSizeArray]
-        [IsExpandedByDefault]
-        [EbxFieldMeta(EbxFieldType.Array, arrayType: EbxFieldType.Struct)]
-        public List<FrostyTextureSettingsItem> Textures { get; set; } = new List<FrostyTextureSettingsItem>();
-    }
-
     public class TextureExporter
     {
         public void Export(Texture textureAsset, string filename, string filterType, bool exportAsStrip)
