@@ -76,6 +76,37 @@ namespace DuplicationPlugin
             }
         }
 
+        public class HavokAssetExtension : DuplicateAssetExtension
+        {
+            public override string AssetType => "HavokAsset";
+
+            public override EbxAssetEntry DuplicateAsset(EbxAssetEntry entry, string newName, bool createNew, Type newType)
+            {
+                EbxAssetEntry refEntry = base.DuplicateAsset(entry, newName, createNew, newType);
+
+                EbxAsset refAsset = App.AssetManager.GetEbx(refEntry);
+                dynamic refRoot = refAsset.RootObject;
+
+                if (refRoot.Resource == 0)
+                {
+                    refRoot.Resource = ((dynamic)App.AssetManager.GetEbx(entry).RootObject).Resource;
+                }
+
+                ResAssetEntry resEntry = App.AssetManager.GetResEntry(refRoot.Resource);
+
+                ResAssetEntry newResEntry = DuplicateRes(resEntry, refEntry.Name, ResourceType.HavokPhysicsData);
+                if (newResEntry != null)
+                {
+                    refRoot.Resource = newResEntry.ResRid;
+                    App.AssetManager.ModifyEbx(refEntry.Name, refAsset);
+                }
+
+                refEntry.LinkAsset(resEntry);
+
+                return refEntry;
+            }
+        }
+
         #region --Bundles--
 
         public class BlueprintBundleExtension : DuplicateAssetExtension
