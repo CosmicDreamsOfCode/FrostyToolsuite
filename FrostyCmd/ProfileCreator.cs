@@ -567,9 +567,10 @@ namespace FrostyCmd
                 writer.Write(sharedBundleNames.Length);
                 foreach (string sbn in sharedBundleNames)
                     writer.WriteObfuscatedString(sbn);
-                writer.Write(ignoredResTypes.Length);
-                foreach (uint resType in ignoredResTypes)
-                    writer.Write(resType);
+                //writer.Write(ignoredResTypes.Length);
+                writer.Write(0);
+                //foreach (uint resType in ignoredResTypes)
+                //writer.Write(resType);
 
                 // Flags (MustAddChunks, EbxVersion, RequiresKey)
                 ProfileFlags pf = new ProfileFlags(0, 4, 0);
