@@ -28,6 +28,7 @@ namespace FrostySdk.Resources
         XenonPackedMipmaps = 0x100,
         Ps3MemoryCell = 0x100,
         Ps3MemoryRsx = 0x200,
+        Swizzled = 0x800,
     }
 
     public class Texture : Resource, IDisposable
@@ -184,6 +185,11 @@ namespace FrostySdk.Resources
             if (ProfilesLibrary.DataVersion == (int)ProfileVersion.Battlefield5 || ProfilesLibrary.DataVersion == (int)ProfileVersion.StarWarsSquadrons)
                 Unknown3[0] = reader.ReadUInt();
             Data = am.GetChunk(am.GetChunkEntry(chunkId));
+
+            if ((Flags & TextureFlags.Swizzled) != 0)
+            {
+                Data = Unswizzle(Data);
+            }
         }
 
         public override byte[] SaveBytes()
@@ -345,6 +351,77 @@ namespace FrostySdk.Resources
         {
             const string enumType = "RenderFormat";
             return (int)(Enum.Parse(TypeLibrary.GetType(enumType), enumType + "_" + format));
+        }
+
+        private Stream Unswizzle(Stream stream)
+        {
+            // Only PS4 for now
+            // https://github.com/bartlomiejduda/ReverseBox/blob/main/reversebox/image/swizzling/swizzle_morton_ps4.py
+
+            string formatName = Enum.GetName(TypeLibrary.GetType("RenderFormat"), pixelFormat);
+
+            int blockDim = formatName.Contains("BC") ? 4 : 1;
+            int bpp = (int)((MipSizes[0] * 8) / (Height * Width)); // size of the first mip in bits divided by the pixel count, multiplied by 2
+
+            int bpp2 = bpp * 2;
+            if (blockDim == 1)
+            {
+                bpp2 = bpp / 8;
+            }
+
+            byte[] destArray = new byte[(Width * Height * bpp / 8) * 2];
+            byte[] blockBuf = new byte[16];
+            int imHeight = Height / blockDim;
+            int imWidth = Width / blockDim;
+            for (int i = 0; i < (imHeight + 7) / 8; i++)
+            {
+                for (int j = 0; j < (imWidth + 7) / 8; j++)
+                {
+                    for (int k = 0; k < 64; k++)
+                    {
+                        int mortonIndex = CalculateMortonIndex(k, 8, 8);
+                        int dataY = mortonIndex / 8;
+                        int dataX = mortonIndex % 8;
+                        stream.Read(blockBuf, 0, bpp2);
+                        if (j * 8 + dataX < imWidth && i * 8 + dataY < imHeight)
+                        {
+                            int num12 = bpp2 * ((i * 8 + dataY) * imWidth + j * 8 + dataX);
+                            Array.Copy(blockBuf, 0, destArray, num12, bpp2);
+                        }
+                    }
+                }
+            }
+
+            return new MemoryStream(destArray);
+        }
+
+        // https://github.com/bartlomiejduda/ReverseBox/blob/main/reversebox/image/swizzling/morton_index.py
+        private static int CalculateMortonIndex(int t, int width, int height)
+        {
+            int num1 = 1, num2 = 1;
+            int num3 = 0, num4 = 0;
+
+            int wrkWidth = width;
+            int wrkHeight = height;
+            while (wrkWidth > 1 || wrkHeight > 1)
+            {
+                if(wrkWidth > 1)
+                {
+                    num3 += num2 * (t & 1);
+                    t >>= 1;
+                    num2 *= 2;
+                    wrkWidth >>= 1;
+                }
+                if(wrkHeight > 1)
+                {
+                    num4 += num1 * (t & 1);
+                    t >>= 1;
+                    num1 *= 2;
+                    wrkHeight >>= 1;
+                }
+            }
+
+            return num4 * width + num3;
         }
     }
 }
