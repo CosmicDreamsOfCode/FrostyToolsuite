@@ -358,9 +358,7 @@ namespace FrostySdk.Resources
             // Only PS4 for now
             // https://github.com/bartlomiejduda/ReverseBox/blob/main/reversebox/image/swizzling/swizzle_morton_ps4.py
 
-            string formatName = Enum.GetName(TypeLibrary.GetType("RenderFormat"), pixelFormat);
-
-            int blockDim = formatName.Contains("BC") ? 4 : 1;
+            int blockDim = PixelFormat.Contains("BC") ? 4 : 1;
             int bpp = (int)((MipSizes[0] * 8) / (Height * Width)); // size of the first mip in bits divided by the pixel count, multiplied by 2
 
             int bpp2 = bpp * 2;
