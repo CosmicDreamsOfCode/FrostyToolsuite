@@ -410,8 +410,6 @@ namespace FrostySdk.Resources
 
                 mipHeight = (mipHeight < blockDim) ? blockDim : mipHeight;
                 mipWidth = (mipWidth < blockDim) ? blockDim : mipWidth;
-
-                
             }
 
             var flatten = images.SelectMany(bytes => bytes);
