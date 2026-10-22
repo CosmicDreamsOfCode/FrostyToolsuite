@@ -360,11 +360,17 @@ namespace FrostySdk.Resources
         {
             // Only PS4 for now
             // https://github.com/bartlomiejduda/ReverseBox/blob/main/reversebox/image/swizzling/swizzle_morton_ps4.py
+            // for some reason this all breaks under 16x16
 
             List<byte[]> images = new List<byte[]>();
 
             int blockDim = PixelFormat.Contains("BC") ? 4 : 1;
-            int bpp = (int)((MipSizes[0] * 8) / (Height * Width)); // size of the first mip in bits divided by the pixel count, multiplied by 2
+            //int bpp = (int)((MipSizes[0] * 8) / (Height * Width)); // size of the first mip in bits divided by the pixel count, multiplied by 2
+
+            SharpDX.DXGI.Format format = ToTextureFormat(PixelFormat, (Flags & TextureFlags.SrgbGamma) != 0);
+            int bpp = (SharpDX.DXGI.FormatHelper.IsCompressed(format))
+                ? SharpDX.DXGI.FormatHelper.SizeOfInBits(format)
+                : SharpDX.DXGI.FormatHelper.SizeOfInBytes(format);
 
             int bpp2 = bpp * 2;
             if (blockDim == 1)
@@ -444,6 +450,58 @@ namespace FrostySdk.Resources
             }
 
             return num4 * width + num3;
+        }
+
+        // this is just from core, might move it entirely here to avoid having a copy but it's whatever ig
+        private static SharpDX.DXGI.Format ToTextureFormat(string pixelFormat, bool bLegacySrgb = false)
+        {
+            if (bLegacySrgb)
+            {
+                if (pixelFormat.StartsWith("BC") && bLegacySrgb)
+                    pixelFormat = pixelFormat.Replace("UNORM", "SRGB");
+            }
+            switch (pixelFormat)
+            {
+                //case "DXT1": return SharpDX.DXGI.Format.BC1_UNorm;
+                case "NormalDXT1": return SharpDX.DXGI.Format.BC1_Typeless;
+                case "NormalDXN": return SharpDX.DXGI.Format.BC5_Typeless;
+                //case "DXT1A": return SharpDX.DXGI.Format.BC1_UNorm;
+                case "BC1A_SRGB": return SharpDX.DXGI.Format.BC1_Typeless;
+                case "BC1A_UNORM": return SharpDX.DXGI.Format.BC1_Typeless;
+                case "BC1_SRGB": return SharpDX.DXGI.Format.BC1_Typeless;
+                case "BC1_UNORM": return SharpDX.DXGI.Format.BC1_Typeless;
+                case "BC2_SRGB": return SharpDX.DXGI.Format.BC2_Typeless;
+                case "BC2_UNORM": return SharpDX.DXGI.Format.BC2_Typeless;
+                //case "DXT3": return SharpDX.DXGI.Format.BC2_UNorm;
+                case "BC3_SRGB": return SharpDX.DXGI.Format.BC3_Typeless;
+                case "BC3_UNORM": return SharpDX.DXGI.Format.BC3_Typeless;
+                case "BC3A_UNORM": return SharpDX.DXGI.Format.BC3_Typeless;
+                case "BC3A_SRGB": return SharpDX.DXGI.Format.BC3_Typeless;
+                case "BC4_UNORM": return SharpDX.DXGI.Format.BC4_Typeless;
+                //case "DXT5": return SharpDX.DXGI.Format.BC3_UNorm;
+                //case "DXT5A": return SharpDX.DXGI.Format.BC3_UNorm;
+                case "BC5_UNORM": return SharpDX.DXGI.Format.BC5_Typeless;
+                case "BC6U_FLOAT": return SharpDX.DXGI.Format.BC6H_Uf16;
+                case "BC7": return SharpDX.DXGI.Format.BC7_Typeless;
+                case "BC7_SRGB": return SharpDX.DXGI.Format.BC7_Typeless;
+                case "BC7_UNORM": return SharpDX.DXGI.Format.BC7_Typeless;
+                case "R8_UNORM": return SharpDX.DXGI.Format.R8_Typeless;
+                case "R16G16B16A16_FLOAT": return SharpDX.DXGI.Format.R16G16B16A16_Float;
+                case "ARGB32F": return SharpDX.DXGI.Format.R32G32B32A32_Float;
+                case "R32G32B32A32_FLOAT": return SharpDX.DXGI.Format.R32G32B32A32_Float;
+                case "R9G9B9E5F": return SharpDX.DXGI.Format.R9G9B9E5_Sharedexp;
+                case "R9G9B9E5_FLOAT": return SharpDX.DXGI.Format.R9G9B9E5_Sharedexp;
+                case "R8G8B8A8_UNORM": return SharpDX.DXGI.Format.R8G8B8A8_Typeless;
+                case "R8G8B8A8_SRGB": return SharpDX.DXGI.Format.R8G8B8A8_Typeless;
+                case "B8G8R8A8_UNORM": return SharpDX.DXGI.Format.B8G8R8A8_Typeless;
+                case "R10G10B10A2_UNORM": return SharpDX.DXGI.Format.R10G10B10A2_Typeless;
+                case "L8": return SharpDX.DXGI.Format.R8_Typeless;
+                case "L16": return SharpDX.DXGI.Format.R16_Typeless;
+                case "ARGB8888": return SharpDX.DXGI.Format.R8G8B8A8_Typeless;
+                case "R16G16_UNORM": return SharpDX.DXGI.Format.R16G16_Typeless;
+                case "D16_UNORM": return SharpDX.DXGI.Format.R16_UNorm;
+                default: return SharpDX.DXGI.Format.Unknown;
+            }
         }
     }
 }

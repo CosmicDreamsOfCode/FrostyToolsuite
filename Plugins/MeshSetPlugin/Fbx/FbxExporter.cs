@@ -1087,7 +1087,7 @@ namespace MeshSetPlugin.Fbx
                                 // SubMaterialIndex
                                 // if no shader specified in ebx its used as color
                                 // else its used as an index for the material
-                                else if (elem.Format == VertexElementFormat.UByte4)
+                                else if (elem.Usage == VertexElementUsage.SubMaterialIndex)
                                 {
                                     if (!colorMapping.ContainsKey(elem.Usage))
                                     {
