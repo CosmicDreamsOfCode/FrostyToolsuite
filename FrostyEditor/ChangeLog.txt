@@ -11,6 +11,7 @@
 - Added mesh skeleton rendering support (@Virjoinga)
 - Added support for rig offsets used in NFS Heat
 - Added and changed a few mesh import exceptions
+- Added PS4 texture unswizzling (experimental)
 - Backend organisation of the MeshSetPlugin
 - Backend organisation of the TexturePlugin
 - Caching of asset type icons (@BreakfastBrainz2)
